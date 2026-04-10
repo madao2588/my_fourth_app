@@ -1,0 +1,36 @@
+services:
+  backend:
+    build:
+      context: ./visitor_system/backend
+      dockerfile: deploy/Dockerfile
+    container_name: visitor-backend
+    environment:
+      DATABASE_URL: sqlite:////app/visitors.db
+      JWT_SECRET_KEY: visitor-system-compose-secret
+      JWT_ALGORITHM: HS256
+      JWT_EXPIRE_MINUTES: 480
+      DEFAULT_ADMIN_USERNAME: admin
+      DEFAULT_ADMIN_PASSWORD: admin123456
+      APPOINTMENT_EXPIRE_HOURS: 48
+      AUTO_EXPIRE_ENABLED: "true"
+      AUTO_EXPIRE_INTERVAL_MINUTES: 60
+      DATABASE_WAIT_TIMEOUT_SECONDS: 30
+      DATABASE_WAIT_INTERVAL_SECONDS: 1
+      LOG_LEVEL: INFO
+      LOG_DIR: /app/logs
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./visitor_system/backend:/app
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: visitor-nginx
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./visitor_system/backend/deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    restart: unless-stopped

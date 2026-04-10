@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>访客管理系统 Web 入口</title>
+  <link rel="stylesheet" href="./src/styles/main.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="hero">
+      <p class="eyebrow">Visitor System</p>
+      <h1>访客系统 Web 入口</h1>
+      <p class="lead">
+        这里将访客侧和管理员侧分开，方便后续继续扩展页面、权限和样式，而不用把所有逻辑都堆在同一个原型页里。
+      </p>
+    </header>
+
+    <main class="grid entry-grid">
+      <section class="card entry-card">
+        <h2>访客入口</h2>
+        <p class="status-text subtle">
+          用于提交预约申请、查看申请结果、按手机号查询审批进度。
+        </p>
+        <div class="actions">
+          <a class="button-link" href="./visitor.html">进入访客页</a>
+        </div>
+      </section>
+
+      <section class="card entry-card">
+        <h2>管理员入口</h2>
+        <p class="status-text subtle">
+          用于管理员登录、审批申请、现场签到、手动过期和查看历史记录。
+        </p>
+        <div class="actions">
+          <a class="button-link" href="./admin.html">进入管理页</a>
+        </div>
+      </section>
+    </main>
+  </div>
+</body>
+</html>

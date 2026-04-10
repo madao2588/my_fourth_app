@@ -1,0 +1,184 @@
+.pass-panel {
+  background: linear-gradient(180deg, #fffefb 0%, #f5fbfa 100%);
+}
+
+.refresh-button {
+  margin-top: 18rpx;
+}
+
+.secondary-button {
+  margin-top: 16rpx;
+  background: #ffffff;
+  color: #0f766e;
+  border: 1rpx solid #0f766e;
+  border-radius: 999rpx;
+}
+
+.submit-button {
+  margin-top: 20rpx;
+  background: #0f766e;
+  color: #ffffff;
+  border-radius: 999rpx;
+}
+
+.pass-box {
+  margin-top: 24rpx;
+}
+
+.pass-hero {
+  padding: 28rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(145deg, #0f766e, #134e4a);
+  color: #f8fafc;
+  box-shadow: 0 18rpx 40rpx rgba(15, 118, 110, 0.18);
+}
+
+.status-chip {
+  display: inline-block;
+  padding: 8rpx 20rpx;
+  border-radius: 999rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-approved {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.status-rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.status-expired {
+  background: #e5e7eb;
+  color: #4b5563;
+}
+
+.status-note {
+  margin: 14rpx 0 18rpx;
+  color: rgba(248, 250, 252, 0.88);
+  line-height: 1.7;
+}
+
+.pass-code {
+  margin-top: 12rpx;
+  font-size: 54rpx;
+  font-weight: 800;
+  letter-spacing: 10rpx;
+  color: #ffffff;
+}
+
+.pass-card {
+  margin-top: 20rpx;
+  padding: 24rpx;
+  border-radius: 24rpx;
+  background: #ffffff;
+  box-shadow: 0 12rpx 28rpx rgba(15, 23, 42, 0.05);
+}
+
+.card-title {
+  margin-bottom: 18rpx;
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #163635;
+}
+
+.pass-row {
+  margin-bottom: 14rpx;
+  padding-bottom: 14rpx;
+  border-bottom: 1rpx dashed rgba(125, 147, 160, 0.26);
+}
+
+.pass-row:last-child {
+  margin-bottom: 0;
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.pass-label {
+  display: block;
+  margin-bottom: 6rpx;
+  color: #52606d;
+  font-size: 24rpx;
+}
+
+.action-row {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}
+
+.payload-box {
+  margin-top: 24rpx;
+  padding: 22rpx;
+  border-radius: 22rpx;
+  background: #ffffff;
+  box-shadow: 0 12rpx 28rpx rgba(15, 23, 42, 0.05);
+}
+
+.payload-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  margin-bottom: 12rpx;
+  color: #163635;
+}
+
+.pass-note {
+  display: block;
+  color: #52606d;
+  margin-bottom: 14rpx;
+  line-height: 1.7;
+}
+
+.payload-text {
+  display: block;
+  padding: 20rpx;
+  border-radius: 18rpx;
+  background: #0f172a;
+  color: #e2e8f0;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.qr-box {
+  display: flex;
+  justify-content: center;
+  padding: 20rpx;
+  border-radius: 18rpx;
+  background: #f8fafc;
+  border: 1rpx solid #d8e4e1;
+}
+
+.qr-image {
+  width: 320rpx;
+  height: 320rpx;
+}
+
+.empty-box {
+  margin-top: 24rpx;
+  padding: 28rpx;
+  border-radius: 24rpx;
+  background: #f8fcfb;
+  color: #52606d;
+}
+
+.empty-title {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: #163635;
+}
+
+.empty-text {
+  display: block;
+  margin-top: 14rpx;
+  line-height: 1.7;
+}

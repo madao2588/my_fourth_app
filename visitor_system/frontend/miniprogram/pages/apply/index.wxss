@@ -1,0 +1,99 @@
+.apply-panel {
+  background: linear-gradient(180deg, #fffefb 0%, #f5fbfa 100%);
+}
+
+.hero-card {
+  margin-top: 24rpx;
+  padding: 28rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(145deg, #0f766e, #115e59);
+  color: #f8fafc;
+  box-shadow: 0 18rpx 40rpx rgba(15, 118, 110, 0.18);
+}
+
+.hero-tag {
+  display: inline-block;
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.15);
+  font-size: 22rpx;
+  letter-spacing: 2rpx;
+}
+
+.hero-text {
+  margin-top: 16rpx;
+  line-height: 1.7;
+  color: rgba(248, 250, 252, 0.9);
+}
+
+.hero-points {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+  margin-top: 20rpx;
+}
+
+.hero-point {
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.14);
+  font-size: 24rpx;
+}
+
+.form-list {
+  margin-top: 24rpx;
+}
+
+.field-card {
+  margin-bottom: 18rpx;
+  padding: 22rpx;
+  border-radius: 22rpx;
+  background: #ffffff;
+  box-shadow: 0 12rpx 28rpx rgba(15, 23, 42, 0.05);
+  border: 1rpx solid rgba(15, 118, 110, 0.08);
+}
+
+.field {
+  margin-bottom: 0;
+}
+
+.label {
+  display: block;
+  margin-bottom: 10rpx;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #163635;
+}
+
+input,
+textarea,
+.picker-input {
+  width: 100%;
+  background: #f8fbfb;
+  border-radius: 18rpx;
+  padding: 20rpx;
+  min-height: 88rpx;
+  box-sizing: border-box;
+  border: 1rpx solid #d7e5e1;
+}
+
+textarea {
+  min-height: 180rpx;
+}
+
+.picker-input {
+  display: flex;
+  align-items: center;
+  color: #0f172a;
+}
+
+.picker-placeholder {
+  color: #94a3b8;
+}
+
+.submit-button {
+  margin-top: 18rpx;
+  background: #0f766e;
+  color: #ffffff;
+  border-radius: 999rpx;
+}

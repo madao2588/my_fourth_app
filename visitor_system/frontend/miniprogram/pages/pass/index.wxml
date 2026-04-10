@@ -1,0 +1,85 @@
+<view class="page-shell">
+  <view class="panel pass-panel">
+    <view class="title">电子凭证</view>
+    <view class="desc">审批通过后，请在现场出示入场码或二维码。门岗可直接扫码读取核验内容。</view>
+    <button class="secondary-button refresh-button" loading="{{loading}}" bindtap="handleRefresh">刷新凭证</button>
+
+    <view wx:if="{{record}}" class="pass-box">
+      <view class="pass-hero">
+        <view>
+          <view class="status-chip status-{{record.statusTone}}">{{record.statusText}}</view>
+          <view class="status-note">{{record.statusNote}}</view>
+        </view>
+        <view class="pass-code">{{record.access_code}}</view>
+      </view>
+
+      <view class="pass-card">
+        <view class="card-title">预约信息</view>
+
+        <view class="pass-row">
+          <text class="pass-label">申请编号</text>
+          <text>{{record.id}}</text>
+        </view>
+        <view class="pass-row">
+          <text class="pass-label">访客姓名</text>
+          <text>{{record.name}}</text>
+        </view>
+        <view class="pass-row">
+          <text class="pass-label">手机号</text>
+          <text>{{record.phone}}</text>
+        </view>
+        <view class="pass-row">
+          <text class="pass-label">受访人</text>
+          <text>{{record.target_person}}</text>
+        </view>
+        <view class="pass-row">
+          <text class="pass-label">预约时间</text>
+          <text>{{record.appointmentTimeText}}</text>
+        </view>
+        <view class="pass-row">
+          <text class="pass-label">审批备注</text>
+          <text>{{record.remarkText}}</text>
+        </view>
+        <view class="pass-row">
+          <text class="pass-label">审批人</text>
+          <text>{{record.approvedByText}}</text>
+        </view>
+        <view class="pass-row">
+          <text class="pass-label">审批时间</text>
+          <text>{{record.approvedAtText}}</text>
+        </view>
+        <view class="pass-row">
+          <text class="pass-label">签到时间</text>
+          <text>{{record.checkedInAtText}}</text>
+        </view>
+      </view>
+
+      <view class="action-row">
+        <button class="secondary-button" bindtap="handleCopyAccessCode">复制入场码</button>
+        <button class="secondary-button" bindtap="openQueryPage">返回状态查询</button>
+        <button class="secondary-button" bindtap="openHomePage">返回首页</button>
+      </view>
+
+      <view class="payload-box">
+        <view class="payload-title">核验内容</view>
+        <text class="payload-text">{{payloadText}}</text>
+      </view>
+
+      <view class="payload-box">
+        <view class="payload-title">二维码凭证</view>
+        <text class="pass-note">{{qrNote}}</text>
+        <view wx:if="{{qrUrl}}" class="qr-box">
+          <image class="qr-image" mode="aspectFit" src="{{qrUrl}}" bindtap="handlePreviewQr" />
+        </view>
+      </view>
+
+      <button class="submit-button" bindtap="handleCopyPayload">复制核验内容</button>
+    </view>
+
+    <view wx:else class="empty-box">
+      <view class="empty-title">暂无可展示的凭证</view>
+      <text class="empty-text">可以先返回查询页重新查询申请状态，审批通过后这里会自动显示二维码和核验内容。</text>
+      <button class="secondary-button" bindtap="openHomePage">返回首页</button>
+    </view>
+  </view>
+</view>

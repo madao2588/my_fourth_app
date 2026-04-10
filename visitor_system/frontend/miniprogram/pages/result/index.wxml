@@ -1,0 +1,33 @@
+<view class="page-shell">
+  <view class="panel result-panel">
+    <view class="success-banner">
+      <view class="success-badge">已提交</view>
+      <view class="title">提交成功</view>
+      <view class="desc">预约已提交，请等待管理员审批。你可以先保存入场码，稍后再查看电子凭证或查询最新状态。</view>
+    </view>
+
+    <view class="result-card">
+      <view class="result-item">
+        <text class="result-label">申请编号</text>
+        <text class="result-value">{{applicationId}}</text>
+      </view>
+
+      <view class="result-item code-card">
+        <text class="result-label">入场码</text>
+        <text class="result-value result-code">{{accessCode}}</text>
+      </view>
+    </view>
+
+    <view class="tips-card">
+      <view class="tips-title">接下来可以做什么</view>
+      <view class="tips-item">1. 复制并保存入场码</view>
+      <view class="tips-item">2. 等待管理员审批</view>
+      <view class="tips-item">3. 审批通过后查看电子凭证</view>
+    </view>
+
+    <button class="secondary-button" bindtap="handleCopyCode">复制入场码</button>
+    <button class="submit-button" bindtap="openPassPage">查看电子凭证</button>
+    <button class="secondary-button" bindtap="openQueryPage">查询最新状态</button>
+    <button class="secondary-button" bindtap="openHomePage">返回首页</button>
+  </view>
+</view>

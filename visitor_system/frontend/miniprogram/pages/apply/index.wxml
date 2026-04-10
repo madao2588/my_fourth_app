@@ -1,0 +1,70 @@
+<view class="page-shell">
+  <view class="panel apply-panel">
+    <view class="title">预约申请</view>
+    <view class="desc">填写来访信息后提交申请。系统会生成申请编号和入场码，审批通过后可在小程序内查看电子凭证。</view>
+
+    <view class="hero-card">
+      <view class="hero-tag">在线预约</view>
+      <view class="hero-text">请尽量填写完整信息，方便管理员快速审批。</view>
+      <view class="hero-points">
+        <view class="hero-point">姓名真实</view>
+        <view class="hero-point">时间明确</view>
+        <view class="hero-point">事由清晰</view>
+      </view>
+    </view>
+
+    <view class="form-list">
+      <view class="field-card">
+        <view class="field">
+          <text class="label">访客姓名</text>
+          <input value="{{form.name}}" placeholder="请输入姓名" data-field="name" bindinput="handleInput" />
+        </view>
+      </view>
+
+      <view class="field-card">
+        <view class="field">
+          <text class="label">手机号</text>
+          <input value="{{form.phone}}" placeholder="请输入手机号" type="number" data-field="phone" bindinput="handleInput" />
+        </view>
+      </view>
+
+      <view class="field-card">
+        <view class="field">
+          <text class="label">来访事由</text>
+          <textarea value="{{form.reason}}" placeholder="请输入来访事由，例如项目沟通、材料递交、面试等" data-field="reason" bindinput="handleInput"></textarea>
+        </view>
+      </view>
+
+      <view class="field-card">
+        <view class="field">
+          <text class="label">受访人</text>
+          <input value="{{form.target_person}}" placeholder="请输入受访人姓名" data-field="target_person" bindinput="handleInput" />
+        </view>
+      </view>
+
+      <view class="field-card">
+        <view class="field">
+          <text class="label">预约日期</text>
+          <picker mode="date" start="{{dateStart}}" end="{{dateEnd}}" value="{{form.appointment_date}}" bindchange="handleDateChange">
+            <view class="picker-input {{form.appointment_date ? '' : 'picker-placeholder'}}">
+              {{form.appointment_date || '请选择预约日期'}}
+            </view>
+          </picker>
+        </view>
+      </view>
+
+      <view class="field-card">
+        <view class="field">
+          <text class="label">预约时间</text>
+          <picker mode="time" value="{{form.appointment_clock}}" bindchange="handleTimeChange">
+            <view class="picker-input {{form.appointment_clock ? '' : 'picker-placeholder'}}">
+              {{form.appointment_clock || '请选择预约时间'}}
+            </view>
+          </picker>
+        </view>
+      </view>
+    </view>
+
+    <button class="submit-button" loading="{{submitting}}" bindtap="handleSubmit">提交预约</button>
+  </view>
+</view>

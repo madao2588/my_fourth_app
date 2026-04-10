@@ -1,0 +1,16 @@
+{
+  "name": "visitor-web-smoke",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Playwright smoke tests for visitor web flows",
+  "scripts": {
+    "contract:check": "node ./scripts/check-dom-contract.js",
+    "smoke": "npm run contract:check && playwright test",
+    "smoke:headed": "playwright test --headed",
+    "smoke:install": "playwright install msedge",
+    "verify": "npm run smoke"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.54.2"
+  }
+}

@@ -1,0 +1,28 @@
+services:
+  backend:
+    environment:
+      DATABASE_URL: postgresql+psycopg://visitor:visitor@postgres:5432/visitor_system
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  postgres:
+    image: postgres:17-alpine
+    container_name: visitor-postgres
+    environment:
+      POSTGRES_DB: visitor_system
+      POSTGRES_USER: visitor
+      POSTGRES_PASSWORD: visitor
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U visitor -d visitor_system"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - "5432:5432"
+    volumes:
+      - visitor_postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  visitor_postgres_data:

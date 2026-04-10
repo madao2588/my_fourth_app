@@ -1,0 +1,90 @@
+.result-panel {
+  background: linear-gradient(180deg, #fffefb 0%, #f5fbfa 100%);
+}
+
+.success-banner {
+  padding: 28rpx;
+  border-radius: 28rpx;
+  background: linear-gradient(145deg, #0f766e, #134e4a);
+  color: #f8fafc;
+  box-shadow: 0 18rpx 40rpx rgba(15, 118, 110, 0.18);
+}
+
+.success-badge {
+  display: inline-block;
+  padding: 8rpx 18rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.15);
+  font-size: 22rpx;
+  letter-spacing: 2rpx;
+}
+
+.result-card {
+  margin-top: 22rpx;
+}
+
+.result-item {
+  margin-top: 16rpx;
+  padding: 22rpx 24rpx;
+  border-radius: 22rpx;
+  background: #ffffff;
+  box-shadow: 0 12rpx 28rpx rgba(15, 23, 42, 0.05);
+}
+
+.code-card {
+  background: linear-gradient(145deg, #ecfeff, #ffffff);
+  border: 1rpx solid rgba(15, 118, 110, 0.12);
+}
+
+.result-label {
+  display: block;
+  color: #52606d;
+  margin-bottom: 8rpx;
+  font-size: 24rpx;
+}
+
+.result-value {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #102a2c;
+}
+
+.result-code {
+  letter-spacing: 6rpx;
+  color: #0b5d74;
+}
+
+.tips-card {
+  margin-top: 20rpx;
+  padding: 24rpx;
+  border-radius: 22rpx;
+  background: #f8fcfb;
+  border: 1rpx solid rgba(15, 118, 110, 0.08);
+}
+
+.tips-title {
+  font-size: 28rpx;
+  font-weight: 700;
+  color: #163635;
+}
+
+.tips-item {
+  margin-top: 14rpx;
+  color: #52606d;
+  line-height: 1.7;
+}
+
+.submit-button {
+  margin-top: 24rpx;
+  background: #0f766e;
+  color: #ffffff;
+  border-radius: 999rpx;
+}
+
+.secondary-button {
+  margin-top: 18rpx;
+  background: #ffffff;
+  color: #0f766e;
+  border: 1rpx solid #0f766e;
+  border-radius: 999rpx;
+}

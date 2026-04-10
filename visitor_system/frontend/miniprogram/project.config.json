@@ -1,0 +1,15 @@
+{
+  "description": "访客管理系统微信小程序骨架",
+  "compileType": "miniprogram",
+  "miniprogramRoot": "./",
+  "setting": {
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": false
+  },
+  "appid": "touristappid",
+  "simulatorType": "wechat",
+  "libVersion": "trial"
+}
+

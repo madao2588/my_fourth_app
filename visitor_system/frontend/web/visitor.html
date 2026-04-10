@@ -1,0 +1,144 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>访客预约系统 - 访客端</title>
+  <link rel="stylesheet" href="./src/styles/main.css">
+</head>
+<body>
+  <div class="shell">
+    <header class="hero">
+      <p class="eyebrow">访客入口</p>
+      <h1>访客预约与状态查询</h1>
+      <p class="lead">
+        提交来访预约，获取申请编号和入场码，并通过手机号查询审批状态。
+      </p>
+      <div class="actions">
+        <a class="button-link ghost-link" href="./index.html">返回入口页</a>
+        <a class="button-link" href="./admin.html">打开管理后台</a>
+      </div>
+    </header>
+
+    <main class="grid">
+      <section class="card form-card">
+        <h2>提交预约</h2>
+        <form id="apply-form" class="form">
+          <label>
+            <span>姓名</span>
+            <input name="name" type="text" placeholder="请输入访客姓名" required>
+          </label>
+          <label>
+            <span>手机号</span>
+            <input name="phone" type="tel" placeholder="请输入手机号" required>
+          </label>
+          <label>
+            <span>来访事由</span>
+            <textarea name="reason" placeholder="请输入来访事由" required></textarea>
+          </label>
+          <label>
+            <span>受访人</span>
+            <input name="target_person" type="text" placeholder="请输入受访人姓名" required>
+          </label>
+          <label>
+            <span>预约时间</span>
+            <input name="appointment_time" type="datetime-local" required>
+          </label>
+          <div class="actions">
+            <button type="submit">提交预约</button>
+            <button id="ping-button" type="button" class="ghost">检查后端</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="card">
+        <h2>提交结果</h2>
+        <p id="apply-result" class="status-text">尚未提交预约。</p>
+        <div id="ticket-card" class="ticket hidden">
+          <p><strong>申请编号：</strong> <span id="application-id">-</span></p>
+          <p><strong>入场码：</strong> <span id="access-code">-</span></p>
+        </div>
+        <p id="ping-result" class="status-text subtle">尚未检查后端健康状态。</p>
+      </section>
+
+      <section class="card">
+        <h2>查询状态</h2>
+        <form id="query-form" class="form">
+          <label>
+            <span>手机号</span>
+            <input name="query_phone" type="tel" placeholder="请输入预约时使用的手机号" required>
+          </label>
+          <div class="actions">
+            <button type="submit">立即查询</button>
+          </div>
+        </form>
+        <div id="query-card" class="ticket hidden">
+          <p><strong>姓名：</strong> <span id="query-name">-</span></p>
+          <p><strong>状态：</strong> <span id="query-status">-</span></p>
+          <p><strong>预约时间：</strong> <span id="query-time">-</span></p>
+          <p><strong>受访人：</strong> <span id="query-target">-</span></p>
+          <p><strong>管理员备注：</strong> <span id="query-remark">-</span></p>
+        </div>
+        <p id="query-result" class="status-text subtle">尚未执行查询。</p>
+      </section>
+
+      <section class="card visitor-pass-card">
+        <div class="section-head">
+          <h2>访客通行证</h2>
+          <span id="pass-status-badge" class="status-badge hidden">pending</span>
+        </div>
+        <p id="pass-result" class="status-text subtle">查询记录后会显示通行证信息。</p>
+
+        <div id="visitor-pass-card" class="pass-card hidden">
+          <div class="pass-head">
+            <div>
+              <p class="pass-label">入场码</p>
+              <p id="pass-access-code" class="pass-code">-</p>
+            </div>
+            <div>
+              <p class="pass-label">申请编号</p>
+              <p id="pass-application-id" class="pass-value">-</p>
+            </div>
+          </div>
+
+          <div class="pass-grid">
+            <p><strong>姓名：</strong> <span id="pass-name">-</span></p>
+            <p><strong>手机号：</strong> <span id="pass-phone">-</span></p>
+            <p><strong>受访人：</strong> <span id="pass-target">-</span></p>
+            <p><strong>预约时间：</strong> <span id="pass-time">-</span></p>
+            <p><strong>管理员备注：</strong> <span id="pass-remark">-</span></p>
+            <p><strong>审批人：</strong> <span id="pass-approved-by">-</span></p>
+            <p><strong>审批时间：</strong> <span id="pass-approved-at">-</span></p>
+            <p><strong>签到时间：</strong> <span id="pass-checked-in-at">-</span></p>
+          </div>
+
+          <div class="payload-box">
+            <div class="section-head">
+              <h3>核验载荷</h3>
+              <button id="copy-pass-payload" type="button" class="ghost">复制载荷</button>
+            </div>
+            <pre id="pass-payload" class="payload-text"></pre>
+          </div>
+
+          <div class="qr-box">
+            <div class="section-head">
+              <h3>二维码预览</h3>
+              <a id="open-pass-qr" class="button-link ghost-link hidden" href="#" target="_blank" rel="noreferrer">新标签打开</a>
+            </div>
+            <p id="pass-qr-note" class="status-text subtle">审批通过后会显示二维码。</p>
+            <div id="pass-qr-wrap" class="qr-wrap hidden">
+              <img id="pass-qr-image" class="qr-image" alt="访客通行二维码">
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="./src/config/env.js"></script>
+  <script src="./src/services/api.js"></script>
+  <script src="./src/utils/shared.js"></script>
+  <script src="./src/store/admin-state.js"></script>
+  <script src="./src/main.js"></script>
+</body>
+</html>

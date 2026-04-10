@@ -1,0 +1,18 @@
+{
+  "pages": [
+    "pages/home/index",
+    "pages/apply/index",
+    "pages/result/index",
+    "pages/query/index",
+    "pages/pass/index"
+  ],
+  "window": {
+    "navigationBarTitleText": "访客预约",
+    "navigationBarBackgroundColor": "#FFF7ED",
+    "navigationBarTextStyle": "black",
+    "backgroundColor": "#F6F3EE",
+    "backgroundTextStyle": "light"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}
