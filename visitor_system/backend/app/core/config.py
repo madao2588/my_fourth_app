@@ -1,5 +1,7 @@
 import os
+from datetime import UTC, timedelta, timezone
 from pathlib import Path
+from zoneinfo import ZoneInfo, ZoneInfoNotFoundError
 
 
 BASE_DIR = Path(__file__).resolve().parents[2]
@@ -28,15 +30,26 @@ def normalize_database_url(value: str) -> str:
     return normalized
 
 
+def _load_timezone(name: str):
+    try:
+        return ZoneInfo(name)
+    except ZoneInfoNotFoundError:
+        if name == "Asia/Shanghai":
+            return timezone(timedelta(hours=8), name="Asia/Shanghai")
+        return UTC
+
+
 DATABASE_URL = normalize_database_url(
     _get_env("DATABASE_URL", f"sqlite:///{DEFAULT_SQLITE_PATH.as_posix()}")
 )
 DATABASE_BACKEND = "sqlite" if DATABASE_URL.startswith("sqlite") else "postgresql"
-JWT_SECRET_KEY = _get_env("JWT_SECRET_KEY", "visitor-system-dev-secret")
+JWT_SECRET_KEY = _get_env("JWT_SECRET_KEY", "visitor-system-dev-secret-change-me-32-bytes")
 JWT_ALGORITHM = _get_env("JWT_ALGORITHM", "HS256")
 JWT_EXPIRE_MINUTES = int(_get_env("JWT_EXPIRE_MINUTES", "480"))
-DEFAULT_ADMIN_USERNAME = _get_env("DEFAULT_ADMIN_USERNAME", "admin")
-DEFAULT_ADMIN_PASSWORD = _get_env("DEFAULT_ADMIN_PASSWORD", "admin123456")
+APP_TIMEZONE_NAME = _get_env("APP_TIMEZONE", "Asia/Shanghai")
+APP_TIMEZONE = _load_timezone(APP_TIMEZONE_NAME)
+DEFAULT_ADMIN_USERNAME = _get_env("DEFAULT_ADMIN_USERNAME", "madao")
+DEFAULT_ADMIN_PASSWORD = _get_env("DEFAULT_ADMIN_PASSWORD", "666666")
 APPOINTMENT_EXPIRE_HOURS = int(_get_env("APPOINTMENT_EXPIRE_HOURS", "48"))
 AUTO_EXPIRE_ENABLED = _get_bool_env("AUTO_EXPIRE_ENABLED", True)
 AUTO_EXPIRE_INTERVAL_MINUTES = int(_get_env("AUTO_EXPIRE_INTERVAL_MINUTES", "60"))

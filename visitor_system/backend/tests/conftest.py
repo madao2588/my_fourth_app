@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session, sessionmaker
 from app.db.base import Base
 from app.db.session import get_db
 from app.main import create_application
-from app.services.auth_service import seed_default_admin
+from app.modules.identity.service import seed_default_admin
 
 
 @pytest.fixture()

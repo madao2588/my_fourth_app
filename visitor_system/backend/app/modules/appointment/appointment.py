@@ -4,6 +4,7 @@ from sqlalchemy import DateTime, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.db.base import Base
+from app.modules.appointment.appointment_status import AppointmentStatus
 
 
 class Appointment(Base):
@@ -15,7 +16,7 @@ class Appointment(Base):
     reason: Mapped[str] = mapped_column(String(255), nullable=False)
     target_person: Mapped[str] = mapped_column(String(50), nullable=False)
     appointment_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)
-    status: Mapped[str] = mapped_column(String(20), default="pending", nullable=False, index=True)
+    status: Mapped[str] = mapped_column(String(20), default=AppointmentStatus.PENDING.value, nullable=False, index=True)
     admin_remark: Mapped[str] = mapped_column(String(255), default="", nullable=False)
     approved_by: Mapped[str | None] = mapped_column(String(50), nullable=True)
     approved_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)

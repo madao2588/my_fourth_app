@@ -1,5 +1,7 @@
-from app.models.user import User
-from app.services.auth_service import hash_password
+from datetime import UTC, datetime, timedelta
+
+from app.modules.identity.service import hash_password, seed_default_admin, verify_password
+from app.modules.identity.user import User
 
 
 def create_appointment_payload(
@@ -19,29 +21,17 @@ def create_appointment_payload(
     }
 
 
-def login_admin_raw(client, password: str = "admin123456"):
+def login_admin_raw(client, username: str = "madao", password: str = "666666"):
     response = client.post(
         "/api/v1/auth/login",
-        json={"username": "admin", "password": password},
+        json={"username": username, "password": password},
     )
     assert response.status_code == 200
     return response.json()
 
 
-def login_admin(client):
-    payload = login_admin_raw(client)
-    if payload["force_password_change"]:
-        headers = {"Authorization": f"Bearer {payload['access_token']}"}
-        change_response = client.post(
-            "/api/v1/auth/change-password",
-            json={
-                "current_password": "admin123456",
-                "new_password": "newadmin123456",
-            },
-            headers=headers,
-        )
-        assert change_response.status_code == 200
-        payload = login_admin_raw(client, password="newadmin123456")
+def login_admin(client, username: str = "madao", password: str = "666666"):
+    payload = login_admin_raw(client, username=username, password=password)
     return {"Authorization": f"Bearer {payload['access_token']}"}
 
 
@@ -54,6 +44,7 @@ def test_health_check(client):
 def test_web_entry_pages_are_served(client):
     index_response = client.get("/")
     visitor_response = client.get("/visitor.html")
+    admin_login_response = client.get("/admin-login.html")
     admin_response = client.get("/admin.html")
     asset_response = client.get("/src/config/env.js")
 
@@ -62,6 +53,9 @@ def test_web_entry_pages_are_served(client):
 
     assert visitor_response.status_code == 200
     assert "text/html" in visitor_response.headers["content-type"]
+
+    assert admin_login_response.status_code == 200
+    assert "text/html" in admin_login_response.headers["content-type"]
 
     assert admin_response.status_code == 200
     assert "text/html" in admin_response.headers["content-type"]
@@ -88,38 +82,61 @@ def test_apply_and_query_latest_appointment(client):
     assert query_payload["record"]["approved_by"] is None
 
 
+def test_api_datetimes_are_serialized_with_timezone(client):
+    client.post(
+        "/api/v1/apply",
+        json=create_appointment_payload(phone="13800138001"),
+    )
+    response = client.get("/api/v1/query/13800138001")
+
+    assert response.status_code == 200
+
+    payload = response.json()["record"]
+    assert payload["appointment_time"].endswith(("Z", "+00:00"))
+    assert payload["created_at"].endswith(("Z", "+00:00"))
+
+
+def test_pass_qr_endpoint_returns_local_svg(client):
+    response = client.get("/api/v1/pass-qr/ABC123")
+    assert response.status_code == 200
+    assert response.headers["content-type"].startswith("image/svg+xml")
+    assert "<svg" in response.text
+
+    invalid_response = client.get("/api/v1/pass-qr/INVALID-CODE")
+    assert invalid_response.status_code == 400
+
+
 def test_admin_login_returns_token(client):
     payload = login_admin_raw(client)
     assert payload["token_type"] == "bearer"
-    assert payload["username"] == "admin"
+    assert payload["username"] == "madao"
+    assert payload["role"] == "madao"
     assert payload["access_token"]
-    assert payload["force_password_change"] is True
+    assert payload["force_password_change"] is False
 
 
-def test_default_admin_must_change_password_before_accessing_admin_features(client):
+def test_madao_accounts_are_seeded_with_descending_roles(client):
     payload = login_admin_raw(client)
     headers = {"Authorization": f"Bearer {payload['access_token']}"}
 
     pending_response = client.get("/api/v1/admin/pending", headers=headers)
-    assert pending_response.status_code == 403
-    assert "change your password" in pending_response.json()["detail"]
+    assert pending_response.status_code == 200
 
     me_response = client.get("/api/v1/auth/me", headers=headers)
     assert me_response.status_code == 200
-    assert me_response.json()["force_password_change"] is True
+    assert me_response.json()["username"] == "madao"
+    assert me_response.json()["role"] == "madao"
+    assert me_response.json()["force_password_change"] is False
 
-    change_response = client.post(
-        "/api/v1/auth/change-password",
-        json={
-            "current_password": "admin123456",
-            "new_password": "newadmin123456",
-        },
-        headers=headers,
-    )
-    assert change_response.status_code == 200
-
-    updated_login = login_admin_raw(client, password="newadmin123456")
-    assert updated_login["force_password_change"] is False
+    users_response = client.get("/api/v1/auth/users", headers=headers)
+    assert users_response.status_code == 200
+    assert [user["username"] for user in users_response.json()[:5]] == [
+        "madao",
+        "madao1",
+        "madao2",
+        "madao3",
+        "madao4",
+    ]
 
 
 def test_admin_can_get_current_account_and_change_password(client):
@@ -129,15 +146,16 @@ def test_admin_can_get_current_account_and_change_password(client):
     me_response = client.get("/api/v1/auth/me", headers=headers)
     assert me_response.status_code == 200
     me_payload = me_response.json()
-    assert me_payload["username"] == "admin"
+    assert me_payload["username"] == "madao"
+    assert me_payload["role"] == "madao"
     assert me_payload["is_active"] is True
-    assert me_payload["force_password_change"] is True
+    assert me_payload["force_password_change"] is False
 
     change_response = client.post(
         "/api/v1/auth/change-password",
         json={
-            "current_password": "admin123456",
-            "new_password": "newadmin123456",
+            "current_password": "666666",
+            "new_password": "777777",
         },
         headers=headers,
     )
@@ -146,13 +164,13 @@ def test_admin_can_get_current_account_and_change_password(client):
 
     old_login = client.post(
         "/api/v1/auth/login",
-        json={"username": "admin", "password": "admin123456"},
+        json={"username": "madao", "password": "666666"},
     )
     assert old_login.status_code == 401
 
     new_login = client.post(
         "/api/v1/auth/login",
-        json={"username": "admin", "password": "newadmin123456"},
+        json={"username": "madao", "password": "777777"},
     )
     assert new_login.status_code == 200
     assert new_login.json()["force_password_change"] is False
@@ -179,7 +197,7 @@ def test_admin_can_manage_user_active_status(client_and_session):
 
     users_response = client.get("/api/v1/auth/users", headers=headers)
     assert users_response.status_code == 200
-    assert len(users_response.json()) == 2
+    assert len(users_response.json()) == 6
 
     disable_response = client.patch(
         f"/api/v1/auth/users/{extra_user_id}/status",
@@ -197,32 +215,56 @@ def test_admin_can_manage_user_active_status(client_and_session):
     assert self_disable_response.status_code == 400
 
 
+def test_seed_default_admin_preserves_existing_account_state(client_and_session):
+    _, session_factory = client_and_session
+
+    session = session_factory()
+    try:
+        user = session.query(User).filter(User.username == "madao").first()
+        assert user is not None
+        user.password_hash = hash_password("777777")
+        user.is_active = False
+        user.force_password_change = True
+        session.commit()
+        seed_default_admin(session)
+        session.refresh(user)
+        assert verify_password("777777", user.password_hash) is True
+        assert user.is_active is False
+        assert user.force_password_change is True
+        assert user.role == "madao"
+    finally:
+        session.close()
+
+
 def test_admin_can_create_new_admin_user(client):
     headers = login_admin(client)
 
     create_response = client.post(
         "/api/v1/auth/users",
         json={
-            "username": "ops_admin",
-            "password": "opsadmin123",
+            "username": "madao_ops",
+            "password": "666666",
+            "role": "madao3",
             "is_active": True,
-            "force_password_change": True,
+            "force_password_change": False,
         },
         headers=headers,
     )
     assert create_response.status_code == 201
     created_payload = create_response.json()
-    assert created_payload["username"] == "ops_admin"
+    assert created_payload["username"] == "madao_ops"
+    assert created_payload["role"] == "madao3"
     assert created_payload["is_active"] is True
-    assert created_payload["force_password_change"] is True
+    assert created_payload["force_password_change"] is False
 
     duplicate_response = client.post(
         "/api/v1/auth/users",
         json={
-            "username": "ops_admin",
-            "password": "opsadmin123",
+            "username": "madao_ops",
+            "password": "666666",
+            "role": "madao3",
             "is_active": True,
-            "force_password_change": True,
+            "force_password_change": False,
         },
         headers=headers,
     )
@@ -230,10 +272,159 @@ def test_admin_can_create_new_admin_user(client):
 
     login_response = client.post(
         "/api/v1/auth/login",
-        json={"username": "ops_admin", "password": "opsadmin123"},
+        json={"username": "madao_ops", "password": "666666"},
     )
     assert login_response.status_code == 200
-    assert login_response.json()["force_password_change"] is True
+    assert login_response.json()["role"] == "madao3"
+    assert login_response.json()["force_password_change"] is False
+
+
+def test_commander_can_update_admin_user_role_and_password(client):
+    headers = login_admin(client)
+
+    create_response = client.post(
+        "/api/v1/auth/users",
+        json={
+            "username": "madao_shift",
+            "password": "666666",
+            "role": "madao4",
+            "is_active": True,
+            "force_password_change": False,
+        },
+        headers=headers,
+    )
+    assert create_response.status_code == 201
+    user_id = create_response.json()["id"]
+
+    update_response = client.patch(
+        f"/api/v1/auth/users/{user_id}",
+        json={
+            "username": "madao_shift_ops",
+            "password": "777777",
+            "role": "madao2",
+            "is_active": True,
+            "force_password_change": True,
+        },
+        headers=headers,
+    )
+    assert update_response.status_code == 200
+
+    payload = update_response.json()
+    assert payload["username"] == "madao_shift_ops"
+    assert payload["role"] == "madao2"
+    assert payload["force_password_change"] is True
+
+    old_login_response = client.post(
+        "/api/v1/auth/login",
+        json={"username": "madao_shift", "password": "666666"},
+    )
+    assert old_login_response.status_code == 401
+
+    new_login_response = client.post(
+        "/api/v1/auth/login",
+        json={"username": "madao_shift_ops", "password": "777777"},
+    )
+    assert new_login_response.status_code == 200
+    assert new_login_response.json()["role"] == "madao2"
+    assert new_login_response.json()["force_password_change"] is True
+
+
+def test_commander_can_delete_admin_user(client):
+    headers = login_admin(client)
+
+    create_response = client.post(
+        "/api/v1/auth/users",
+        json={
+            "username": "madao_temp_delete",
+            "password": "666666",
+            "role": "madao4",
+            "is_active": True,
+            "force_password_change": False,
+        },
+        headers=headers,
+    )
+    assert create_response.status_code == 201
+    user_id = create_response.json()["id"]
+
+    delete_response = client.delete(f"/api/v1/auth/users/{user_id}", headers=headers)
+    assert delete_response.status_code == 200
+    assert delete_response.json()["success"] is True
+
+    list_response = client.get("/api/v1/auth/users", headers=headers)
+    assert list_response.status_code == 200
+    usernames = [user["username"] for user in list_response.json()]
+    assert "madao_temp_delete" not in usernames
+
+
+def test_madao_role_permissions_are_enforced(client):
+    madao_headers = login_admin(client, username="madao")
+    madao1_headers = login_admin(client, username="madao1")
+    madao2_headers = login_admin(client, username="madao2")
+    madao3_headers = login_admin(client, username="madao3")
+    madao4_headers = login_admin(client, username="madao4")
+
+    create_response = client.post("/api/v1/apply", json=create_appointment_payload())
+    record_id = create_response.json()["application_id"]
+    access_code = create_response.json()["access_code"]
+
+    guard_audit = client.put(
+        f"/api/v1/admin/approve/{record_id}",
+        json={"action": "approve", "remark": "guard cannot approve"},
+        headers=madao3_headers,
+    )
+    assert guard_audit.status_code == 403
+
+    approver_create_user = client.post(
+        "/api/v1/auth/users",
+        json={"username": "madao_extra", "password": "666666", "role": "madao4"},
+        headers=madao1_headers,
+    )
+    assert approver_create_user.status_code == 403
+
+    approver_update_user = client.patch(
+        "/api/v1/auth/users/2",
+        json={"role": "madao4"},
+        headers=madao1_headers,
+    )
+    assert approver_update_user.status_code == 403
+
+    approver_delete_user = client.delete("/api/v1/auth/users/2", headers=madao1_headers)
+    assert approver_delete_user.status_code == 403
+
+    approve_response = client.put(
+        f"/api/v1/admin/approve/{record_id}",
+        json={"action": "approve", "remark": "approver can approve"},
+        headers=madao1_headers,
+    )
+    assert approve_response.status_code == 200
+    assert approve_response.json()["approved_by"] == "madao1"
+
+    audit_logs = client.get("/api/v1/admin/logs?limit=5", headers=madao4_headers)
+    assert audit_logs.status_code == 200
+
+    auditor_check_in = client.post(
+        "/api/v1/admin/check-in",
+        json={"access_code": access_code},
+        headers=madao4_headers,
+    )
+    assert auditor_check_in.status_code == 403
+
+    guard_inspect = client.post(
+        "/api/v1/admin/inspect",
+        json={"access_code": access_code},
+        headers=madao3_headers,
+    )
+    assert guard_inspect.status_code == 200
+
+    guard_check_in = client.post(
+        "/api/v1/admin/check-in",
+        json={"access_code": access_code},
+        headers=madao3_headers,
+    )
+    assert guard_check_in.status_code == 200
+
+    users_response = client.get("/api/v1/auth/users", headers=madao_headers)
+    assert users_response.status_code == 200
 
 
 def test_admin_endpoints_require_auth(client):
@@ -276,7 +467,7 @@ def test_admin_can_approve_pending_appointment(client):
     approve_payload = approve_response.json()
     assert approve_payload["status"] == "approved"
     assert approve_payload["admin_remark"] == "同意来访"
-    assert approve_payload["approved_by"] == "admin"
+    assert approve_payload["approved_by"] == "madao"
     assert approve_payload["approved_at"] is not None
     assert approve_payload["checked_in_at"] is None
     assert approve_payload["expired_at"] is None
@@ -304,7 +495,7 @@ def test_admin_cannot_audit_non_pending_appointment(client):
         headers=headers,
     )
     assert second_response.status_code == 400
-    assert "pending" in second_response.json()["detail"].lower()
+    assert "待审批" in second_response.json()["detail"]
 
 
 def test_admin_can_check_in_approved_appointment(client):
@@ -328,9 +519,9 @@ def test_admin_can_check_in_approved_appointment(client):
     assert check_in_response.status_code == 200
 
     payload = check_in_response.json()
-    assert payload["status"] == "approved"
+    assert payload["status"] == "checked_in"
     assert payload["checked_in_at"] is not None
-    assert payload["approved_by"] == "admin"
+    assert payload["approved_by"] == "madao"
 
     repeat_check_in = client.post(
         "/api/v1/admin/check-in",
@@ -338,6 +529,40 @@ def test_admin_can_check_in_approved_appointment(client):
         headers=headers,
     )
     assert repeat_check_in.status_code == 400
+
+
+def test_admin_history_supports_checked_in_status_filter(client):
+    headers = login_admin(client)
+
+    create_response = client.post(
+        "/api/v1/apply",
+        json=create_appointment_payload(name="checked_in_visitor", phone="13800001111"),
+    )
+    record_id = create_response.json()["application_id"]
+    access_code = create_response.json()["access_code"]
+
+    approve_response = client.put(
+        f"/api/v1/admin/approve/{record_id}",
+        json={"action": "approve", "remark": "ready for onsite"},
+        headers=headers,
+    )
+    assert approve_response.status_code == 200
+
+    check_in_response = client.post(
+        "/api/v1/admin/check-in",
+        json={"access_code": access_code},
+        headers=headers,
+    )
+    assert check_in_response.status_code == 200
+
+    checked_in_only = client.get("/api/v1/admin/list?status=checked_in", headers=headers)
+    assert checked_in_only.status_code == 200
+
+    payload = checked_in_only.json()
+    assert payload["total"] == 1
+    assert len(payload["items"]) == 1
+    assert payload["items"][0]["id"] == record_id
+    assert payload["items"][0]["status"] == "checked_in"
 
 
 def test_admin_cannot_audit_checked_in_appointment(client):
@@ -366,7 +591,7 @@ def test_admin_cannot_audit_checked_in_appointment(client):
         headers=headers,
     )
     assert re_audit_response.status_code == 400
-    assert "pending" in re_audit_response.json()["detail"].lower()
+    assert "待审批" in re_audit_response.json()["detail"]
 
 
 def test_admin_can_inspect_appointment_by_access_code(client):
@@ -393,7 +618,7 @@ def test_admin_can_inspect_appointment_by_access_code(client):
     assert payload["id"] == record_id
     assert payload["access_code"] == access_code
     assert payload["status"] == "approved"
-    assert payload["approved_by"] == "admin"
+    assert payload["approved_by"] == "madao"
 
 
 def test_admin_can_expire_approved_appointment(client):
@@ -459,7 +684,7 @@ def test_admin_history_supports_filters(client):
     rejected_payload = rejected_only.json()["items"]
     assert len(rejected_payload) == 1
     assert rejected_payload[0]["phone"] == "13900139000"
-    assert rejected_payload[0]["approved_by"] == "admin"
+    assert rejected_payload[0]["approved_by"] == "madao"
     assert rejected_payload[0]["approved_at"] is not None
 
     phone_filtered = client.get("/api/v1/admin/list?phone=1380", headers=headers)
@@ -597,7 +822,7 @@ def test_admin_stats_returns_dashboard_counts(client):
     payload = stats_response.json()
     assert payload["total"] == 4
     assert payload["pending"] == 1
-    assert payload["approved"] == 1
+    assert payload["approved"] == 0
     assert payload["rejected"] == 1
     assert payload["expired"] == 1
     assert payload["checked_in"] == 1
@@ -672,13 +897,15 @@ def test_admin_overview_returns_today_summary_and_recent_activity(client):
 
 def test_admin_can_expire_stale_approved_appointments(client):
     headers = login_admin(client)
+    stale_time = datetime.now(UTC) - timedelta(hours=72)
+    fresh_time = datetime.now(UTC) + timedelta(hours=2)
 
     stale_response = client.post(
         "/api/v1/apply",
         json=create_appointment_payload(
             name="过期访客",
             phone="13888880000",
-            appointment_time="2026-04-01T10:00:00+00:00",
+            appointment_time=stale_time.isoformat(),
         ),
     )
     fresh_response = client.post(
@@ -686,7 +913,7 @@ def test_admin_can_expire_stale_approved_appointments(client):
         json=create_appointment_payload(
             name="未过期访客",
             phone="13899990000",
-            appointment_time="2026-04-08T10:00:00+00:00",
+            appointment_time=fresh_time.isoformat(),
         ),
     )
 
@@ -771,3 +998,9 @@ def test_admin_can_read_recent_logs(client):
     )
     assert date_filtered.status_code == 200
     assert date_filtered.json() == []
+
+    aware_date_filtered = client.get(
+        "/api/v1/admin/logs?limit=20&date_from=2000-01-01T00:00:00%2B00:00",
+        headers=headers,
+    )
+    assert aware_date_filtered.status_code == 200

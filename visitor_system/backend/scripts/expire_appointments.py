@@ -6,7 +6,7 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 from app.core.config import APPOINTMENT_EXPIRE_HOURS
 from app.core.logging import get_logger, setup_logging
 from app.db.session import SessionLocal
-from app.services.appointment_service import expire_stale_appointments
+from app.modules.scheduler.service import expire_stale_appointments
 
 setup_logging()
 logger = get_logger()

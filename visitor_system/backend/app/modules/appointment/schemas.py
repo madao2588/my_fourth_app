@@ -1,7 +1,9 @@
-from datetime import UTC, datetime
+from datetime import datetime
 from typing import Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
+
+from app.core.time import ensure_utc, to_utc
 
 
 class ApplyVisitRequest(BaseModel):
@@ -14,9 +16,7 @@ class ApplyVisitRequest(BaseModel):
     @field_validator("appointment_time")
     @classmethod
     def normalize_appointment_time(cls, value: datetime) -> datetime:
-        if value.tzinfo is None:
-            return value.replace(tzinfo=UTC)
-        return value
+        return to_utc(value)
 
 
 class ApplyVisitResponse(BaseModel):
@@ -35,30 +35,6 @@ class AdminAuditRequest(BaseModel):
     remark: str = Field(default="", max_length=255)
 
 
-class AdminCheckInRequest(BaseModel):
-    access_code: str = Field(..., min_length=6, max_length=6)
-
-
-class AdminExpireRequest(BaseModel):
-    access_code: str = Field(..., min_length=6, max_length=6)
-
-
-class AdminInspectRequest(BaseModel):
-    access_code: str = Field(..., min_length=6, max_length=6)
-
-
-class AdminExpireStaleResponse(BaseModel):
-    expired_count: int
-    threshold_hours: int
-
-
-class AdminLogEntry(BaseModel):
-    timestamp: str
-    level: str
-    message: str
-    raw: str
-
-
 class AdminHistoryQuery(BaseModel):
     status: str | None = None
     phone: str | None = None
@@ -67,40 +43,12 @@ class AdminHistoryQuery(BaseModel):
     page: int = 1
     page_size: int = 10
 
-
-class AdminStatsResponse(BaseModel):
-    total: int
-    pending: int
-    approved: int
-    rejected: int
-    expired: int
-    checked_in: int
-
-
-class AdminTodayStatsResponse(BaseModel):
-    created: int
-    pending: int
-    approved: int
-    rejected: int
-    checked_in: int
-    expired: int
-
-
-class AdminActivityItem(BaseModel):
-    event_type: str
-    title: str
-    description: str
-    happened_at: datetime
-    appointment_id: int
-    visitor_name: str
-    phone: str
-    access_code: str
-    status: str
-
-
-class AdminOverviewResponse(BaseModel):
-    today: AdminTodayStatsResponse
-    recent_activity: list[AdminActivityItem]
+    @field_validator("date_from", "date_to")
+    @classmethod
+    def normalize_history_range(cls, value: datetime | None) -> datetime | None:
+        if value is None:
+            return None
+        return to_utc(value)
 
 
 class AppointmentRead(BaseModel):
@@ -120,6 +68,20 @@ class AppointmentRead(BaseModel):
     expired_at: datetime | None = None
     access_code: str
     created_at: datetime
+
+    @field_validator(
+        "appointment_time",
+        "approved_at",
+        "checked_in_at",
+        "expired_at",
+        "created_at",
+        mode="before",
+    )
+    @classmethod
+    def normalize_output_datetime(cls, value: datetime | None) -> datetime | None:
+        if value is None:
+            return None
+        return ensure_utc(value)
 
 
 class PaginatedAppointmentsResponse(BaseModel):

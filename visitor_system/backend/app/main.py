@@ -7,12 +7,12 @@ from fastapi.responses import FileResponse
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.api.router import api_router
 from app.core.config import AUTO_EXPIRE_ENABLED, FRONTEND_WEB_DIR
 from app.core.logging import get_logger, setup_logging
 from app.db.session import check_database_connection, init_db
+from app.modules.router import api_router
+from app.modules.scheduler.service import run_expiration_worker
 from app.schemas.common import ErrorResponse, HealthResponse
-from app.tasks.expiration import run_expiration_worker
 
 
 setup_logging()
@@ -50,9 +50,9 @@ def create_application(init_db_on_startup: bool = True) -> FastAPI:
             await expiration_task
 
     application = FastAPI(
-        title="Visitor System API",
+        title="访客系统 API",
         version="0.1.0",
-        description="Modular backend scaffold for visitor registration and approval.",
+        description="访客预约、审批、签到与审计后台服务。",
         lifespan=lifespan,
     )
     application.include_router(api_router, prefix="/api/v1")
@@ -62,7 +62,7 @@ def create_application(init_db_on_startup: bool = True) -> FastAPI:
         if isinstance(exc.detail, str):
             message = exc.detail
         else:
-            message = "Request failed."
+            message = "请求失败。"
         return _error_response(
             status_code=exc.status_code,
             code="http_error",
@@ -74,9 +74,9 @@ def create_application(init_db_on_startup: bool = True) -> FastAPI:
         first_error = exc.errors()[0] if exc.errors() else None
         if first_error:
             location = ".".join(str(item) for item in first_error.get("loc", []))
-            message = f"Invalid request parameter: {location}"
+            message = f"请求参数无效：{location}"
         else:
-            message = "Invalid request parameter."
+            message = "请求参数无效。"
         return _error_response(
             status_code=422,
             code="validation_error",
@@ -89,7 +89,7 @@ def create_application(init_db_on_startup: bool = True) -> FastAPI:
         return _error_response(
             status_code=500,
             code="internal_error",
-            message="Internal server error.",
+            message="服务器内部错误。",
         )
 
     if FRONTEND_WEB_DIR.exists():
@@ -112,6 +112,10 @@ def create_application(init_db_on_startup: bool = True) -> FastAPI:
         @application.get("/visitor.html", include_in_schema=False)
         def web_visitor() -> FileResponse:
             return FileResponse(FRONTEND_WEB_DIR / "visitor.html")
+
+        @application.get("/admin-login.html", include_in_schema=False)
+        def web_admin_login() -> FileResponse:
+            return FileResponse(FRONTEND_WEB_DIR / "admin-login.html")
 
         @application.get("/admin.html", include_in_schema=False)
         def web_admin() -> FileResponse:

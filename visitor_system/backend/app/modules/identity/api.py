@@ -1,27 +1,33 @@
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
-from app.api.deps import get_current_admin, get_current_user
 from app.db.session import get_db
-from app.models.user import User
-from app.schemas.auth import (
+from app.modules.identity.deps import get_current_user, require_permission
+from app.modules.identity.permissions import Permission
+from app.modules.identity.schemas import (
     AdminUserCreateRequest,
     AdminUserRead,
     AdminUserStatusUpdateRequest,
+    AdminUserUpdateRequest,
     ChangePasswordRequest,
     ChangePasswordResponse,
     CurrentUserRead,
+    DeleteAdminUserResponse,
     LoginRequest,
     LoginResponse,
 )
-from app.services.auth_service import (
+from app.modules.identity.service import (
     authenticate_user,
     change_user_password,
-    create_user,
     create_access_token,
+    create_user,
+    delete_user,
     list_users,
+    update_user,
     update_user_active_status,
 )
+from app.modules.identity.user import User
+
 
 router = APIRouter(prefix="/auth")
 
@@ -34,6 +40,7 @@ def login(payload: LoginRequest, db: Session = Depends(get_db)) -> LoginResponse
         access_token=token,
         expires_in=expires_in,
         username=user.username,
+        role=user.role,
         force_password_change=user.force_password_change,
     )
 
@@ -43,6 +50,7 @@ def get_current_account(current_user: User = Depends(get_current_user)) -> Curre
     return CurrentUserRead(
         id=current_user.id,
         username=current_user.username,
+        role=current_user.role,
         is_active=current_user.is_active,
         force_password_change=current_user.force_password_change,
         created_at=current_user.created_at,
@@ -61,13 +69,13 @@ def change_password(
         current_password=payload.current_password,
         new_password=payload.new_password,
     )
-    return ChangePasswordResponse(message="Password updated successfully.")
+    return ChangePasswordResponse(message="密码修改成功。")
 
 
 @router.get("/users", response_model=list[AdminUserRead])
 def get_admin_users(
     db: Session = Depends(get_db),
-    _: User = Depends(get_current_admin),
+    _: User = Depends(require_permission(Permission.ACCOUNT_READ)),
 ) -> list[AdminUserRead]:
     return [AdminUserRead.model_validate(user) for user in list_users(db)]
 
@@ -76,13 +84,34 @@ def get_admin_users(
 def create_admin_user(
     payload: AdminUserCreateRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_admin),
+    current_user: User = Depends(require_permission(Permission.ACCOUNT_CREATE)),
 ) -> AdminUserRead:
     user = create_user(
         db=db,
         actor=current_user,
         username=payload.username,
         password=payload.password,
+        role=payload.role.value,
+        is_active=payload.is_active,
+        force_password_change=payload.force_password_change,
+    )
+    return AdminUserRead.model_validate(user)
+
+
+@router.patch("/users/{user_id}", response_model=AdminUserRead)
+def update_admin_user(
+    user_id: int,
+    payload: AdminUserUpdateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission(Permission.ACCOUNT_UPDATE)),
+) -> AdminUserRead:
+    user = update_user(
+        db=db,
+        actor=current_user,
+        target_user_id=user_id,
+        username=payload.username,
+        password=payload.password,
+        role=payload.role.value if payload.role else None,
         is_active=payload.is_active,
         force_password_change=payload.force_password_change,
     )
@@ -94,7 +123,7 @@ def update_admin_user_status(
     user_id: int,
     payload: AdminUserStatusUpdateRequest,
     db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_admin),
+    current_user: User = Depends(require_permission(Permission.ACCOUNT_UPDATE)),
 ) -> AdminUserRead:
     user = update_user_active_status(
         db=db,
@@ -103,3 +132,17 @@ def update_admin_user_status(
         is_active=payload.is_active,
     )
     return AdminUserRead.model_validate(user)
+
+
+@router.delete("/users/{user_id}", response_model=DeleteAdminUserResponse)
+def delete_admin_user(
+    user_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_permission(Permission.ACCOUNT_DELETE)),
+) -> DeleteAdminUserResponse:
+    deleted_username = delete_user(
+        db=db,
+        actor=current_user,
+        target_user_id=user_id,
+    )
+    return DeleteAdminUserResponse(message=f"管理员账号已删除：{deleted_username}")

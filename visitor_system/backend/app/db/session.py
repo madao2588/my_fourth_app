@@ -27,7 +27,7 @@ def get_db() -> Generator[Session, None, None]:
 
 
 def init_db() -> None:
-    from app.services.auth_service import seed_default_admin
+    from app.modules.identity.service import seed_default_admin
 
     db = SessionLocal()
     try:
