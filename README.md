@@ -19,7 +19,7 @@
 7. 管理员通过入场码或扫码完成现场签到
 8. 后台查看历史记录、统计看板、最近动态和系统日志
 
-截至 `2026-04-08`，后端测试已通过 `24` 项。
+截至 `2026-04-21`，后端测试已通过 `34` 项。
 
 ## 当前成品形态
 
@@ -106,7 +106,7 @@
 ### 管理员侧
 
 - 管理员登录
-- 默认管理员首次登录强制改密
+- 支持按账号策略强制改密
 - 查看当前管理员账号
 - 修改密码
 - 新增管理员账号
@@ -139,12 +139,15 @@
 
 - `POST /api/v1/apply`
 - `GET /api/v1/query/{phone}`
+- `GET /api/v1/pass-qr/{access_code}`
 - `POST /api/v1/auth/login`
 - `GET /api/v1/auth/me`
 - `POST /api/v1/auth/change-password`
 - `POST /api/v1/auth/users`
 - `GET /api/v1/auth/users`
+- `PATCH /api/v1/auth/users/{user_id}`
 - `PATCH /api/v1/auth/users/{user_id}/status`
+- `DELETE /api/v1/auth/users/{user_id}`
 - `GET /api/v1/admin/pending`
 - `GET /api/v1/admin/stats`
 - `GET /api/v1/admin/overview`
@@ -201,14 +204,14 @@ docker compose -f docker-compose.yml -f docker-compose.postgres.yml up --build
 
 ## 默认管理员账号
 
-系统首次启动时会自动初始化开发管理员：
+系统首次启动时会自动补齐开发管理员账号：
 
-- 用户名：`admin`
-- 密码：`admin123456`
+- 总指挥官：`madao / 666666`
+- 预置角色账号：`madao1`、`madao2`、`madao3`、`madao4`
 
 仅适合本地开发和演示，不建议直接用于正式环境。
 
-注意：默认管理员首次登录后会被要求先修改密码，修改完成后才能继续访问后台审批、统计和日志功能。
+注意：当前预置账号默认不强制首次改密；如需启用，可在账号管理中设置 `force_password_change=true`。
 
 ## 测试
 
@@ -233,4 +236,3 @@ python -m pytest
 - [backend/README.md](/d:/projects/my_fourth_app/visitor_system/backend/README.md)
 - [frontend/README.md](/d:/projects/my_fourth_app/visitor_system/frontend/README.md)
 - [api-contract.md](/d:/projects/my_fourth_app/visitor_system/frontend/shared/api/api-contract.md)
-

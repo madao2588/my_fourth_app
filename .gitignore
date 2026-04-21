@@ -3,5 +3,6 @@ __pycache__/
 .pytest_cache/
 .venv/
 visitor_system/backend/.idea/
+visitor_system/backend/.codex-temp/
 visitor_system/backend/visitors.db
 visitor_system/backend/logs/

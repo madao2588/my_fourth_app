@@ -29,6 +29,7 @@
 | --- | --- |
 | `pending` | 待审批 |
 | `approved` | 已通过 |
+| `checked_in` | 已签到 |
 | `rejected` | 已拒绝 |
 | `expired` | 已过期 |
 
@@ -44,7 +45,7 @@
   "appointment_time": "2026-04-08T10:00:00+00:00",
   "status": "approved",
   "admin_remark": "同意来访",
-  "approved_by": "admin",
+  "approved_by": "madao",
   "approved_at": "2026-04-08T08:30:00+00:00",
   "checked_in_at": null,
   "expired_at": null,
@@ -120,7 +121,7 @@
     "appointment_time": "2026-04-08T10:00:00+00:00",
     "status": "approved",
     "admin_remark": "同意来访",
-    "approved_by": "admin",
+    "approved_by": "madao",
     "approved_at": "2026-04-08T08:30:00+00:00",
     "checked_in_at": null,
     "expired_at": null,
@@ -129,6 +130,17 @@
   }
 }
 ```
+
+### 4.3 获取本地二维码
+
+- 方法：`GET`
+- 路径：`/api/v1/pass-qr/{access_code}`
+
+说明：
+
+- 返回类型为 `image/svg+xml`
+- 当前 Web 端二维码只编码 `access_code`
+- 不再将姓名、手机号、受访人等明文信息发送给第三方二维码服务
 
 ## 5. 认证接口
 
@@ -141,8 +153,8 @@
 
 ```json
 {
-  "username": "admin",
-  "password": "admin123456"
+  "username": "madao",
+  "password": "666666"
 }
 ```
 
@@ -152,9 +164,10 @@
 {
   "access_token": "jwt-token",
   "token_type": "bearer",
-  "expires_in": 120,
-  "username": "admin",
-  "force_password_change": true
+  "expires_in": 28800,
+  "username": "madao",
+  "role": "madao",
+  "force_password_change": false
 }
 ```
 
@@ -167,9 +180,11 @@
 
 ```json
 {
-  "username": "admin",
+  "id": 1,
+  "username": "madao",
+  "role": "madao",
   "is_active": true,
-  "force_password_change": true,
+  "force_password_change": false,
   "created_at": "2026-04-08T07:55:00+00:00"
 }
 ```
@@ -183,8 +198,8 @@
 
 ```json
 {
-  "current_password": "admin123456",
-  "new_password": "newadmin123456"
+  "current_password": "666666",
+  "new_password": "777777"
 }
 ```
 
@@ -192,7 +207,8 @@
 
 ```json
 {
-  "message": "Password updated successfully."
+  "success": true,
+  "message": "密码修改成功。"
 }
 ```
 
@@ -207,7 +223,8 @@
 [
   {
     "id": 1,
-    "username": "admin",
+    "username": "madao",
+    "role": "madao",
     "is_active": true,
     "force_password_change": false,
     "created_at": "2026-04-08T07:55:00+00:00"
@@ -224,8 +241,39 @@
 
 ```json
 {
-  "username": "ops_admin",
-  "password": "opsadmin123",
+  "username": "madao_ops",
+  "password": "666666",
+  "role": "madao4",
+  "is_active": true,
+  "force_password_change": false
+}
+```
+
+响应体：
+
+```json
+{
+  "id": 2,
+  "username": "madao_ops",
+  "role": "madao4",
+  "is_active": true,
+  "force_password_change": false,
+  "created_at": "2026-04-08T08:30:00+00:00"
+}
+```
+
+### 5.6 更新管理员账号
+
+- 方法：`PATCH`
+- 路径：`/api/v1/auth/users/{user_id}`
+
+请求体：
+
+```json
+{
+  "username": "madao_ops_v2",
+  "password": "777777",
+  "role": "madao2",
   "is_active": true,
   "force_password_change": true
 }
@@ -236,14 +284,29 @@
 ```json
 {
   "id": 2,
-  "username": "ops_admin",
+  "username": "madao_ops_v2",
+  "role": "madao2",
   "is_active": true,
   "force_password_change": true,
   "created_at": "2026-04-08T08:30:00+00:00"
 }
 ```
 
-### 5.6 更新管理员账号状态
+### 5.7 删除管理员账号
+
+- 方法：`DELETE`
+- 路径：`/api/v1/auth/users/{user_id}`
+
+响应体：
+
+```json
+{
+  "success": true,
+  "message": "管理员账号已删除：madao_ops_v2"
+}
+```
+
+### 5.8 更新管理员账号状态
 
 - 方法：`PATCH`
 - 路径：`/api/v1/auth/users/{user_id}/status`
@@ -261,7 +324,8 @@
 ```json
 {
   "id": 2,
-  "username": "security_admin",
+  "username": "madao_ops",
+  "role": "madao4",
   "is_active": false,
   "force_password_change": false,
   "created_at": "2026-04-08T08:30:00+00:00"
@@ -321,6 +385,7 @@
 
 - 方法：`POST`
 - 路径：`/api/v1/admin/check-in`
+- 签到成功后 `status` 为 `checked_in`，`checked_in_at` 为签到时间。
 
 请求体：
 
@@ -378,6 +443,9 @@
   "checked_in": 4
 }
 ```
+
+- 当前状态统计口径：`approved` 表示仍处于已通过且未签到、未过期的预约。
+- 当前状态统计口径：`checked_in` 表示显式已签到状态的预约。
 
 ### 6.8 获取今日看板与最近动态
 
@@ -440,7 +508,7 @@
       "appointment_time": "2026-04-08T10:00:00+00:00",
       "status": "approved",
       "admin_remark": "同意来访",
-      "approved_by": "admin",
+      "approved_by": "madao",
       "approved_at": "2026-04-08T08:30:00+00:00",
       "checked_in_at": null,
       "expired_at": null,
@@ -474,8 +542,8 @@
   {
     "timestamp": "2026-04-08 10:44:37",
     "level": "INFO",
-    "message": "appointment_audited id=1 action=approve status=approved admin=admin access_code=A8B2C3 remark=同意来访",
-    "raw": "2026-04-08 10:44:37 | INFO | appointment_audited id=1 action=approve status=approved admin=admin access_code=A8B2C3 remark=同意来访"
+    "message": "appointment_audited id=1 action=approve status=approved admin=madao access_code=A8B2C3 remark=同意来访",
+    "raw": "2026-04-08 10:44:37 | INFO | appointment_audited id=1 action=approve status=approved admin=madao access_code=A8B2C3 remark=同意来访"
   }
 ]
 ```
@@ -484,7 +552,8 @@
 
 - 前端不要自行生成入场码
 - 状态值统一使用后端返回的英文枚举
-- 二维码内容建议至少包含 `access_code`
+- 二维码内容当前统一只包含 `access_code`
+- Web 端二维码统一通过 `/api/v1/pass-qr/{access_code}` 本地生成
 - 小程序与 Web 尽量共用同一套中文状态映射
 - 历史记录分页以服务端返回的 `page`、`page_size`、`total` 为准
 

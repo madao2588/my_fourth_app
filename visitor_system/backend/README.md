@@ -26,32 +26,21 @@
 ```text
 backend/
 ├─ app/
-│  ├─ api/
-│  │  ├─ deps.py
-│  │  ├─ router.py
-│  │  └─ routes/
-│  │     ├─ admin.py
-│  │     ├─ auth.py
-│  │     └─ visitor.py
 │  ├─ core/
 │  │  ├─ config.py
 │  │  └─ logging.py
 │  ├─ db/
 │  │  ├─ base.py
 │  │  └─ session.py
-│  ├─ models/
-│  │  ├─ appointment.py
-│  │  └─ user.py
+│  ├─ modules/
+│  │  ├─ identity/
+│  │  ├─ appointment/
+│  │  ├─ onsite/
+│  │  ├─ audit/
+│  │  ├─ scheduler/
+│  │  └─ router.py
 │  ├─ schemas/
-│  │  ├─ appointment.py
-│  │  ├─ auth.py
 │  │  └─ common.py
-│  ├─ services/
-│  │  ├─ appointment_service.py
-│  │  ├─ auth_service.py
-│  │  └─ log_service.py
-│  ├─ tasks/
-│  │  └─ expiration.py
 │  └─ main.py
 ├─ alembic/
 ├─ deploy/
@@ -70,6 +59,7 @@ backend/
 
 - `POST /api/v1/apply`
 - `GET /api/v1/query/{phone}`
+- `GET /api/v1/pass-qr/{access_code}`
 
 ### 认证接口
 
@@ -78,7 +68,9 @@ backend/
 - `POST /api/v1/auth/change-password`
 - `POST /api/v1/auth/users`
 - `GET /api/v1/auth/users`
+- `PATCH /api/v1/auth/users/{user_id}`
 - `PATCH /api/v1/auth/users/{user_id}/status`
+- `DELETE /api/v1/auth/users/{user_id}`
 
 ### 管理员接口
 
@@ -106,7 +98,7 @@ backend/
 3. 管理员登录后台
 4. 审批通过或拒绝
 5. 访客按手机号查询结果
-6. 审批通过后展示电子凭证和二维码
+6. 审批通过后展示电子凭证和本地二维码
 7. 管理员通过入场码或扫码预览预约
 8. 管理员执行现场签到
 9. 未签到预约可以手动过期或自动过期
@@ -119,19 +111,19 @@ backend/
 - 登录
 - 当前账号查询
 - 修改密码
-- 默认管理员首次登录强制改密
+- 支持按账号策略强制改密
 - 新增管理员账号
 - 启用 / 禁用管理员账号
 
-系统首次启动时会初始化开发管理员：
+系统首次启动时会补齐开发管理员账号：
 
-- 用户名：`admin`
-- 密码：`admin123456`
+- 总指挥官：`madao / 666666`
+- 预置角色账号：`madao1`、`madao2`、`madao3`、`madao4`
 
 说明：
 
-- 默认管理员首次登录后会被标记为必须先改密
-- 在改密完成前，后台审批、统计、日志等接口会被限制访问
+- 仅在账号缺失时自动创建默认管理员，不会在重启时重置已有账号密码或启用状态
+- 当前预置账号默认不强制首次改密；如需启用，可在账号管理中设置 `force_password_change=true`
 - 不能禁用自己的账号
 - 不能把最后一个启用中的管理员禁用
 
@@ -269,7 +261,7 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 - 管理员登录
 - 当前账号查询
 - 修改密码
-- 默认管理员首次登录强制改密
+- 按账号策略强制改密
 - 新增管理员账号
 - 管理员账号启用 / 禁用
 - 审批
