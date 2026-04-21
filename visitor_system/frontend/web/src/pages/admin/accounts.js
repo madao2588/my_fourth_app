@@ -131,9 +131,13 @@
 
     function buildAdminUserItem(user) {
       const wrapper = document.createElement("article");
-      wrapper.className = "pending-item";
+      wrapper.className = "pending-item account-user-card";
+      wrapper.dataset.role = user.role || "";
+      wrapper.dataset.active = String(Boolean(user.is_active));
+      wrapper.dataset.passwordPolicy = user.force_password_change ? "forced" : "normal";
 
       const isCurrentUser = user.username === sessionState.getCurrentUsername();
+      wrapper.classList.toggle("is-current-user", isCurrentUser);
       const stateText = user.is_active ? "已启用" : "已禁用";
       const forceChangeText = user.force_password_change ? "下次登录需改密" : "无需强制改密";
 
@@ -151,7 +155,7 @@
 
       if (canManageAdminUsers()) {
         const actionBar = document.createElement("div");
-        actionBar.className = "actions admin-user-actions";
+        actionBar.className = "actions admin-user-actions account-user-actions";
 
         const editButton = document.createElement("button");
         editButton.type = "button";

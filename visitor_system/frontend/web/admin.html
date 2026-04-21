@@ -3,7 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>访客预约系统 - 管理后台</title>
+  <title>Welman Reservation System | Admin</title>
+  <link rel="icon" href="./public/favicon.svg" type="image/svg+xml">
   <script>
     (function guardAdminPage() {
       const token = localStorage.getItem("visitor_admin_token") || "";
@@ -22,28 +23,36 @@
       }
     })();
   </script>
-  <link rel="stylesheet" href="./src/styles/main.css">
+  <link rel="stylesheet" href="./src/styles/main.css?v=20260421-brand-admin-shell-2">
 </head>
 <body>
   <div class="shell shell-wide">
     <header class="hero hero-compact">
       <div class="hero-copy">
-        <p class="eyebrow">管理后台</p>
-        <h1>预约审批与现场操作</h1>
+        <p class="eyebrow">Welman Reservation System / admin</p>
+        <h1>威尔曼预约系统管理后台</h1>
         <p class="lead">
-          在统一后台中完成账户安全、预约审批、现场签到、历史查询、运行日志和日常维护。
+          统一处理预约审批、现场签到、账户权限维护与系统审计。
         </p>
-        <div class="actions">
-          <a class="button-link ghost-link" href="./index.html">返回入口页</a>
-          <a class="button-link" href="./visitor.html">打开访客页</a>
-          <button id="logout-button" type="button" class="ghost">退出登录</button>
-        </div>
       </div>
-      <div class="hero-aside hero-note">
-        <p class="stats-label">访问说明</p>
-        <p class="status-text subtle">
-          管理后台现在只接受已登录会话访问。未登录或会话失效时会自动跳回独立登录页。
-        </p>
+      <div class="hero-aside hero-note admin-session-card" id="admin-session-card">
+        <button id="logout-button" type="button" class="ghost hero-action session-action">退出登录</button>
+        <div class="admin-session-profile">
+          <div class="admin-avatar-block">
+            <label class="admin-avatar-uploader" for="admin-avatar-file">
+              <div id="admin-avatar-preview" class="admin-avatar-preview" aria-label="管理员头像">
+                <img id="admin-avatar-image" class="admin-avatar-image hidden" alt="管理员头像预览">
+                <span id="admin-avatar-initial">W</span>
+              </div>
+              <span class="admin-avatar-upload-text">上传头像</span>
+            </label>
+            <input id="admin-avatar-file" class="hidden" type="file" accept="image/*">
+          </div>
+          <div class="admin-session-profile-copy">
+            <strong id="admin-session-user" class="hero-note-value">正在加载</strong>
+            <p id="admin-session-role" class="admin-session-role">正在加载</p>
+          </div>
+        </div>
       </div>
     </header>
 
@@ -84,11 +93,11 @@
               <form id="password-form" class="form">
                 <label>
                   <span>当前密码</span>
-                  <input name="current_password" type="password" minlength="6" required>
+                  <input name="current_password" type="password" minlength="6" autocomplete="current-password" required>
                 </label>
                 <label>
                   <span>新密码</span>
-                  <input name="new_password" type="password" minlength="6" required>
+                  <input name="new_password" type="password" minlength="6" autocomplete="new-password" required>
                 </label>
                 <div class="actions">
                   <button type="submit">更新密码</button>
@@ -113,7 +122,7 @@
                     </label>
                     <label>
                       <span>初始密码</span>
-                      <input name="new_user_password" type="password" minlength="6" placeholder="请输入初始密码" required>
+                      <input name="new_user_password" type="password" minlength="6" autocomplete="new-password" placeholder="请输入初始密码" required>
                     </label>
                     <label>
                       <span>角色 / 权限级别</span>
@@ -159,7 +168,7 @@
                       </label>
                       <label>
                         <span>重置密码</span>
-                        <input name="edit_password" type="password" minlength="6" placeholder="留空表示不修改密码">
+                        <input name="edit_password" type="password" minlength="6" autocomplete="new-password" placeholder="留空表示不修改密码">
                       </label>
                       <label>
                         <span>角色 / 权限级别</span>
@@ -495,19 +504,20 @@
     </div>
   </div>
 
-  <script src="./src/runtime/registry.js"></script>
-  <script src="./src/pages/admin/shell.js"></script>
-  <script src="./src/pages/admin/dashboard.js"></script>
-  <script src="./src/pages/admin/pending.js"></script>
-  <script src="./src/pages/admin/onsite.js"></script>
-  <script src="./src/pages/admin/history.js"></script>
-  <script src="./src/pages/admin/logs.js"></script>
-  <script src="./src/pages/admin/accounts.js"></script>
-  <script src="./src/config/env.js"></script>
-  <script src="./src/services/api.js"></script>
-  <script src="./src/utils/shared.js"></script>
-  <script src="./src/dom/elements.js"></script>
-  <script src="./src/store/admin-state.js"></script>
-  <script src="./src/main.js"></script>
+  <script src="./src/runtime/registry.js?v=20260421-brand-admin-shell-2"></script>
+  <script src="./src/pages/admin/shell.js?v=20260421-brand-admin-shell-2"></script>
+  <script src="./src/pages/admin/dashboard.js?v=20260421-brand-admin-shell-2"></script>
+  <script src="./src/pages/admin/pending.js?v=20260421-brand-admin-shell-2"></script>
+  <script src="./src/pages/admin/onsite.js?v=20260421-brand-admin-shell-2"></script>
+  <script src="./src/pages/admin/history.js?v=20260421-brand-admin-shell-2"></script>
+  <script src="./src/pages/admin/logs.js?v=20260421-brand-admin-shell-2"></script>
+  <script src="./src/pages/admin/accounts.js?v=20260421-brand-admin-shell-2"></script>
+  <script src="./public/runtime-config.js?v=20260421-brand-admin-shell-2"></script>
+  <script src="./src/config/env.js?v=20260421-brand-admin-shell-2"></script>
+  <script src="./src/services/api.js?v=20260421-brand-admin-shell-2"></script>
+  <script src="./src/utils/shared.js?v=20260421-brand-admin-shell-2"></script>
+  <script src="./src/dom/elements.js?v=20260421-brand-admin-shell-2"></script>
+  <script src="./src/store/admin-state.js?v=20260421-brand-admin-shell-2"></script>
+  <script src="./src/main.js?v=20260421-brand-admin-shell-2"></script>
 </body>
 </html>

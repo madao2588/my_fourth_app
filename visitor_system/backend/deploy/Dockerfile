@@ -3,12 +3,13 @@ FROM python:3.14-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 
-WORKDIR /app
+WORKDIR /app/backend
 
-COPY requirements.txt .
+COPY backend/requirements.txt ./requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY backend /app/backend
+COPY frontend /app/frontend
 
 EXPOSE 8000
 

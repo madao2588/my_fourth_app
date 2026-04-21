@@ -3,11 +3,12 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse
 from fastapi.responses import JSONResponse
 from fastapi.staticfiles import StaticFiles
 
-from app.core.config import AUTO_EXPIRE_ENABLED, FRONTEND_WEB_DIR
+from app.core.config import AUTO_EXPIRE_ENABLED, CORS_ALLOW_ORIGINS, FRONTEND_WEB_DIR
 from app.core.logging import get_logger, setup_logging
 from app.db.session import check_database_connection, init_db
 from app.modules.router import api_router
@@ -50,11 +51,20 @@ def create_application(init_db_on_startup: bool = True) -> FastAPI:
             await expiration_task
 
     application = FastAPI(
-        title="访客系统 API",
+        title="Welman Reservation System API",
         version="0.1.0",
-        description="访客预约、审批、签到与审计后台服务。",
+        description="威尔曼预约系统的预约、审批、签到与审计后台服务。",
         lifespan=lifespan,
     )
+    if CORS_ALLOW_ORIGINS:
+        application.add_middleware(
+            CORSMiddleware,
+            allow_origins=CORS_ALLOW_ORIGINS,
+            allow_credentials=False,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
+
     application.include_router(api_router, prefix="/api/v1")
 
     @application.exception_handler(HTTPException)
@@ -95,31 +105,47 @@ def create_application(init_db_on_startup: bool = True) -> FastAPI:
     if FRONTEND_WEB_DIR.exists():
         src_dir = FRONTEND_WEB_DIR / "src"
         public_dir = FRONTEND_WEB_DIR / "public"
+        favicon_file = public_dir / "favicon.ico"
+        if not favicon_file.exists():
+            favicon_file = public_dir / "favicon.svg"
+        html_headers = {"Cache-Control": "no-store, max-age=0"}
 
         if src_dir.exists():
             application.mount("/src", StaticFiles(directory=src_dir), name="web-src")
         if public_dir.exists():
             application.mount("/public", StaticFiles(directory=public_dir), name="web-public")
+        if favicon_file.exists():
+            @application.get("/favicon.ico", include_in_schema=False)
+            def web_favicon() -> FileResponse:
+                return FileResponse(favicon_file)
 
         @application.get("/", include_in_schema=False)
         def web_index() -> FileResponse:
-            return FileResponse(FRONTEND_WEB_DIR / "index.html")
+            return FileResponse(FRONTEND_WEB_DIR / "visitor.html", headers=html_headers)
 
         @application.get("/index.html", include_in_schema=False)
         def web_index_file() -> FileResponse:
-            return FileResponse(FRONTEND_WEB_DIR / "index.html")
+            return FileResponse(FRONTEND_WEB_DIR / "visitor.html", headers=html_headers)
 
         @application.get("/visitor.html", include_in_schema=False)
         def web_visitor() -> FileResponse:
-            return FileResponse(FRONTEND_WEB_DIR / "visitor.html")
+            return FileResponse(FRONTEND_WEB_DIR / "visitor.html", headers=html_headers)
+
+        @application.get("/visitor", include_in_schema=False)
+        def web_visitor_alias() -> FileResponse:
+            return FileResponse(FRONTEND_WEB_DIR / "visitor.html", headers=html_headers)
 
         @application.get("/admin-login.html", include_in_schema=False)
         def web_admin_login() -> FileResponse:
-            return FileResponse(FRONTEND_WEB_DIR / "admin-login.html")
+            return FileResponse(FRONTEND_WEB_DIR / "admin-login.html", headers=html_headers)
+
+        @application.get("/admin", include_in_schema=False)
+        def web_admin_entry() -> FileResponse:
+            return FileResponse(FRONTEND_WEB_DIR / "admin-login.html", headers=html_headers)
 
         @application.get("/admin.html", include_in_schema=False)
         def web_admin() -> FileResponse:
-            return FileResponse(FRONTEND_WEB_DIR / "admin.html")
+            return FileResponse(FRONTEND_WEB_DIR / "admin.html", headers=html_headers)
 
     @application.get("/health", tags=["system"], response_model=HealthResponse)
     def health_check() -> HealthResponse:

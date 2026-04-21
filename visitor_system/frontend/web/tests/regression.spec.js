@@ -109,7 +109,15 @@ async function createRoleUser(apiRequest, adminHeaders, role) {
     },
   });
   expect(response.status()).toBe(201);
-  return { username, password, role };
+  const payload = await response.json();
+  return { id: payload.id, username, password, role };
+}
+
+async function deleteAdminUserIfPresent(apiRequest, adminHeaders, userId) {
+  const response = await apiRequest.delete(`${API_BASE}/api/v1/auth/users/${userId}`, {
+    headers: adminHeaders,
+  });
+  expect([200, 404]).toContain(response.status());
 }
 
 async function createAppointment(apiRequest, overrides = {}) {
@@ -220,30 +228,34 @@ test.describe("web regressions", () => {
       const admin = await ensurePrimaryAdmin(request);
       const roleUser = await createRoleUser(request, admin.headers, roleCase.role);
 
-      await openProtectedAdminPage(page);
-      await loginAdminUi(page, roleUser);
+      try {
+        await openProtectedAdminPage(page);
+        await loginAdminUi(page, roleUser);
 
-      await expect.poll(async () => new URL(page.url()).hash).toBe(`#${roleCase.defaultView}`);
-      await expect(page.locator(`[data-view="${roleCase.defaultView}"]`)).toBeVisible();
+        await expect.poll(async () => new URL(page.url()).hash).toBe(`#${roleCase.defaultView}`);
+        await expect(page.locator(`[data-view="${roleCase.defaultView}"]`)).toBeVisible();
 
-      for (const view of ADMIN_VIEWS) {
-        const link = page.locator(`[data-view-link="${view}"]`);
-        if (roleCase.allowedViews.includes(view)) {
-          await expect(link).toBeVisible();
-          await expect(link).not.toHaveClass(/hidden/);
-          await expect(link).toHaveAttribute("aria-hidden", "false");
-        } else {
-          await expect(link).toHaveClass(/hidden/);
-          await expect(link).toHaveAttribute("aria-hidden", "true");
+        for (const view of ADMIN_VIEWS) {
+          const link = page.locator(`[data-view-link="${view}"]`);
+          if (roleCase.allowedViews.includes(view)) {
+            await expect(link).toBeVisible();
+            await expect(link).not.toHaveClass(/hidden/);
+            await expect(link).toHaveAttribute("aria-hidden", "false");
+          } else {
+            await expect(link).toHaveClass(/hidden/);
+            await expect(link).toHaveAttribute("aria-hidden", "true");
+          }
         }
+
+        await page.evaluate((disallowedView) => {
+          window.location.hash = `#${disallowedView}`;
+        }, roleCase.disallowedView);
+
+        await expect.poll(async () => new URL(page.url()).hash).toBe(`#${roleCase.defaultView}`);
+        await expect(page.locator(`[data-view="${roleCase.defaultView}"]`)).toBeVisible();
+      } finally {
+        await deleteAdminUserIfPresent(request, admin.headers, roleUser.id);
       }
-
-      await page.evaluate((disallowedView) => {
-        window.location.hash = `#${disallowedView}`;
-      }, roleCase.disallowedView);
-
-      await expect.poll(async () => new URL(page.url()).hash).toBe(`#${roleCase.defaultView}`);
-      await expect(page.locator(`[data-view="${roleCase.defaultView}"]`)).toBeVisible();
     });
   }
 

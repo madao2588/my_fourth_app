@@ -69,7 +69,7 @@ function extractHtmlIds(htmlText) {
 
 function extractScriptSrcs(htmlText) {
   const matches = [...htmlText.matchAll(/<script\s+[^>]*src="([^"]+)"[^>]*><\/script>/g)];
-  return matches.map((m) => m[1]);
+  return matches.map((m) => m[1].split("?")[0]);
 }
 
 function extractNavAnchors(adminHtmlText) {

@@ -3,16 +3,17 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>访客预约系统 - 管理员登录</title>
-  <link rel="stylesheet" href="./src/styles/main.css">
+  <title>Welman Reservation System | Admin Login</title>
+  <link rel="icon" href="./public/favicon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./src/styles/main.css?v=20260421-brand-admin-shell-2">
 </head>
 <body>
   <div class="shell auth-shell">
     <main class="card auth-card">
-      <p class="eyebrow">管理员登录</p>
-      <h1>进入管理后台</h1>
+      <p class="eyebrow">Welman Reservation System / admin</p>
+      <h1>进入威尔曼预约系统管理端</h1>
       <p class="status-text subtle">
-        请先完成账号验证，验证成功后再进入管理后台。
+        使用管理员账号进入 admin 后台。访客预约与状态查询请前往 visitor 站点。
       </p>
 
       <form id="login-form" class="form" method="post" onsubmit="return false;">
@@ -26,7 +27,7 @@
         </label>
         <div class="actions">
           <button id="login-submit-button" type="submit">登录</button>
-          <a class="button-link ghost-link" href="./index.html">返回入口页</a>
+          <a class="button-link ghost-link" href="./visitor.html">返回 visitor 访客站</a>
         </div>
       </form>
 
@@ -49,10 +50,11 @@
       );
     })();
   </script>
-  <script src="./src/runtime/registry.js"></script>
-  <script src="./src/config/env.js"></script>
-  <script src="./src/services/api.js"></script>
-  <script src="./src/utils/shared.js"></script>
-  <script src="./src/pages/admin/login-page.js"></script>
+  <script src="./src/runtime/registry.js?v=20260421-brand-admin-shell-2"></script>
+  <script src="./public/runtime-config.js?v=20260421-brand-admin-shell-2"></script>
+  <script src="./src/config/env.js?v=20260421-brand-admin-shell-2"></script>
+  <script src="./src/services/api.js?v=20260421-brand-admin-shell-2"></script>
+  <script src="./src/utils/shared.js?v=20260421-brand-admin-shell-2"></script>
+  <script src="./src/pages/admin/login-page.js?v=20260421-brand-admin-shell-2"></script>
 </body>
 </html>

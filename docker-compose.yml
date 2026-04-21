@@ -1,11 +1,11 @@
 services:
   backend:
     build:
-      context: ./visitor_system/backend
-      dockerfile: deploy/Dockerfile
+      context: ./visitor_system
+      dockerfile: backend/deploy/Dockerfile
     container_name: visitor-backend
     environment:
-      DATABASE_URL: sqlite:////app/visitors.db
+      DATABASE_URL: sqlite:////app/backend/visitors.db
       JWT_SECRET_KEY: visitor-system-compose-secret-change-me-32-bytes
       JWT_ALGORITHM: HS256
       JWT_EXPIRE_MINUTES: 480
@@ -17,11 +17,12 @@ services:
       DATABASE_WAIT_TIMEOUT_SECONDS: 30
       DATABASE_WAIT_INTERVAL_SECONDS: 1
       LOG_LEVEL: INFO
-      LOG_DIR: /app/logs
+      LOG_DIR: /app/backend/logs
+      FRONTEND_WEB_DIR: /app/frontend/web
     ports:
       - "8000:8000"
     volumes:
-      - ./visitor_system/backend:/app
+      - ./visitor_system:/app
     restart: unless-stopped
 
   nginx:

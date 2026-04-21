@@ -37,7 +37,7 @@ async function waitForBackendReady(apiRequest, attempts = 10, intervalMs = 1000)
 
 async function openVisitorPage(page) {
   for (let i = 0; i < 3; i += 1) {
-    await page.goto("/visitor.html", { waitUntil: "domcontentloaded" });
+    await page.goto("/", { waitUntil: "domcontentloaded" });
     const nameInput = page.locator('input[name="name"]');
     const count = await nameInput.count();
     if (count > 0) {
@@ -46,7 +46,7 @@ async function openVisitorPage(page) {
     }
     await page.waitForTimeout(1000);
   }
-  throw new Error('visitor.html loaded but expected input[name="name"] was not found.');
+  throw new Error('Root page did not resolve to the visitor interface.');
 }
 
 async function loginByPassword(apiRequest, password) {

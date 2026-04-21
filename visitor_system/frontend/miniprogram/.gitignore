@@ -1,3 +1,4 @@
 dist/
 miniprogram_npm/
-
+config/runtime.private.js
+project.private.config.json

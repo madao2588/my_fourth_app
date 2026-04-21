@@ -38,6 +38,13 @@
     };
 
     const adminElements = {
+      adminSessionCard: byId("admin-session-card"),
+      adminSessionUserNode: byId("admin-session-user"),
+      adminSessionRoleNode: byId("admin-session-role"),
+      adminAvatarPreview: byId("admin-avatar-preview"),
+      adminAvatarImageNode: byId("admin-avatar-image"),
+      adminAvatarInitialNode: byId("admin-avatar-initial"),
+      adminAvatarInput: byId("admin-avatar-file"),
       logoutButton: byId("logout-button"),
       refreshAccountButton: byId("refresh-account-button"),
       accountCard: byId("account-card"),

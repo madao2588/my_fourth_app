@@ -1,0 +1,13 @@
+**/__pycache__/
+**/*.pyc
+**/.pytest_cache/
+**/.venv/
+**/.git/
+backend/tests/
+backend/visitors.db
+frontend/web/node_modules/
+frontend/web/test-results/
+frontend/web/playwright-report/
+frontend/miniprogram/dist/
+frontend/miniprogram/miniprogram_npm/
+frontend/miniprogram/project.private.config.json
