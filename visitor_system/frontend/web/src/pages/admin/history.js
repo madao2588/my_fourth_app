@@ -1,6 +1,10 @@
 (function registerAdminHistoryPage(global) {
-  const pageRegistry = (global.AdminPages = global.AdminPages || {});
-  const behaviorRegistry = (global.AdminBehaviors = global.AdminBehaviors || {});
+  const runtime = global.VisitorRuntime;
+  if (!runtime) {
+    throw new Error("VisitorRuntime is not available.");
+  }
+  const pageRegistry = runtime.getRegistry("adminPages");
+  const behaviorRegistry = runtime.getRegistry("adminBehaviors");
 
   pageRegistry.history = function initAdminHistoryPage(context) {
     return {
@@ -18,7 +22,9 @@
   };
 
   behaviorRegistry.history = function createAdminHistoryBehavior(context) {
-    const { el, deps, state } = context;
+    const { el, deps, state, services } = context;
+    const { visitorApi } = services;
+    const historyState = state.history;
 
     function buildHistoryItem(record) {
       const wrapper = document.createElement("article");
@@ -29,8 +35,8 @@
         `<p><strong>状态：</strong>${deps.formatStatus(record.status)}</p>`,
         `<p><strong>预约时间：</strong>${deps.formatDateTime(record.appointment_time)}</p>`,
         `<p><strong>受访人：</strong>${record.target_person}</p>`,
-        `<p><strong>访问事由：</strong>${record.reason}</p>`,
-        `<p><strong>审批备注：</strong>${record.admin_remark || "无"}</p>`,
+        `<p><strong>来访事由：</strong>${record.reason}</p>`,
+        `<p><strong>审批备注：</strong>${record.admin_remark || "-"}</p>`,
         `<p><strong>审批人：</strong>${record.approved_by || "-"}</p>`,
         `<p><strong>审批时间：</strong>${deps.formatDateTime(record.approved_at)}</p>`,
         `<p><strong>签到时间：</strong>${deps.formatDateTime(record.checked_in_at)}</p>`,
@@ -43,37 +49,33 @@
     }
 
     function renderHistoryPage() {
-      if (!el.historyListNode) {
-        return;
-      }
+      if (!el.historyListNode) return;
 
-      const historyRecords = state.getHistoryRecords();
-      const historyTotal = state.getHistoryTotal();
-      let historyPage = state.getHistoryPage();
+      const records = historyState.getRecords();
+      const total = historyState.getTotal();
+      let page = historyState.getPage();
 
       deps.clearNode(el.historyListNode);
-      deps.toggleHidden(el.historyEmptyNode, historyTotal !== 0);
+      deps.toggleHidden(el.historyEmptyNode, total !== 0);
 
-      const totalPages = Math.max(1, Math.ceil(historyTotal / deps.historyPageSize));
-      historyPage = Math.min(Math.max(historyPage, 1), totalPages);
-      state.setHistoryPage(historyPage);
+      const totalPages = Math.max(1, Math.ceil(total / deps.historyPageSize));
+      page = Math.min(Math.max(page, 1), totalPages);
+      historyState.setPage(page);
 
-      historyRecords.forEach((record) => el.historyListNode.appendChild(buildHistoryItem(record)));
+      records.forEach((record) => el.historyListNode.appendChild(buildHistoryItem(record)));
 
-      if (!historyTotal) {
+      if (!total) {
         deps.setText(el.historyPageInfoNode, "当前没有可分页的历史记录。");
       } else {
-        deps.setText(el.historyPageInfoNode, `第 ${historyPage} / ${totalPages} 页，共 ${historyTotal} 条记录。`);
+        deps.setText(el.historyPageInfoNode, `第 ${page} / ${totalPages} 页，共 ${total} 条记录。`);
       }
 
-      if (el.historyPrevButton) el.historyPrevButton.disabled = historyPage <= 1;
-      if (el.historyNextButton) el.historyNextButton.disabled = historyPage >= totalPages;
+      if (el.historyPrevButton) el.historyPrevButton.disabled = page <= 1;
+      if (el.historyNextButton) el.historyNextButton.disabled = page >= totalPages;
     }
 
     function readHistoryFilters() {
-      if (!el.historyForm) {
-        return {};
-      }
+      if (!el.historyForm) return {};
 
       const formData = new FormData(el.historyForm);
       return {
@@ -81,15 +83,13 @@
         phone: formData.get("history_phone"),
         date_from: deps.normalizeDateTimeInput(formData.get("history_date_from")),
         date_to: deps.normalizeDateTimeInput(formData.get("history_date_to")),
-        page: state.getHistoryPage(),
+        page: historyState.getPage(),
         page_size: deps.historyPageSize,
       };
     }
 
     async function loadHistory(filters = {}) {
-      if (!el.historyListNode || !el.historyResultNode) {
-        return;
-      }
+      if (!el.historyListNode || !el.historyResultNode) return;
 
       if (!deps.isAdminLoggedIn()) {
         deps.clearNode(el.historyListNode);
@@ -103,10 +103,10 @@
       deps.clearNode(el.historyListNode);
 
       try {
-        const payload = await global.visitorApi.getAdminHistory(filters);
-        state.setHistoryRecords(payload.items);
-        state.setHistoryTotal(payload.total);
-        state.setHistoryPage(payload.page);
+        const payload = await visitorApi.getAdminHistory(filters);
+        historyState.setRecords(payload.items);
+        historyState.setTotal(payload.total);
+        historyState.setPage(payload.page);
         renderHistoryPage();
 
         if (!payload.total) {
@@ -123,31 +123,29 @@
 
     async function handleHistorySubmit(event) {
       event.preventDefault();
-      state.setHistoryPage(1);
+      historyState.setPage(1);
       await loadHistory(readHistoryFilters());
     }
 
     async function handleClearHistoryFilters() {
-      if (!el.historyForm) {
-        return;
-      }
+      if (!el.historyForm) return;
 
       el.historyForm.reset();
-      state.setHistoryPage(1);
+      historyState.setPage(1);
       await loadHistory(readHistoryFilters());
     }
 
     async function goToPrevHistoryPage() {
-      if (state.getHistoryPage() > 1) {
-        state.setHistoryPage(state.getHistoryPage() - 1);
+      if (historyState.getPage() > 1) {
+        historyState.setPage(historyState.getPage() - 1);
         await loadHistory(readHistoryFilters());
       }
     }
 
     async function goToNextHistoryPage() {
-      const totalPages = Math.max(1, Math.ceil(state.getHistoryTotal() / deps.historyPageSize));
-      if (state.getHistoryPage() < totalPages) {
-        state.setHistoryPage(state.getHistoryPage() + 1);
+      const totalPages = Math.max(1, Math.ceil(historyState.getTotal() / deps.historyPageSize));
+      if (historyState.getPage() < totalPages) {
+        historyState.setPage(historyState.getPage() + 1);
         await loadHistory(readHistoryFilters());
       }
     }

@@ -1,6 +1,10 @@
 (function registerAdminDashboardPage(global) {
-  const pageRegistry = (global.AdminPages = global.AdminPages || {});
-  const behaviorRegistry = (global.AdminBehaviors = global.AdminBehaviors || {});
+  const runtime = global.VisitorRuntime;
+  if (!runtime) {
+    throw new Error("VisitorRuntime is not available.");
+  }
+  const pageRegistry = runtime.getRegistry("adminPages");
+  const behaviorRegistry = runtime.getRegistry("adminBehaviors");
 
   pageRegistry.dashboard = function initAdminDashboardPage(context) {
     return {
@@ -18,7 +22,8 @@
   };
 
   behaviorRegistry.dashboard = function createAdminDashboardBehavior(context) {
-    const { el, deps } = context;
+    const { el, deps, services } = context;
+    const { visitorApi } = services;
 
     function renderStats(stats) {
       if (!stats) {
@@ -42,6 +47,18 @@
           checked_in: "已签到",
           expired: "已过期",
         }[eventType] || eventType
+      );
+    }
+
+    function buildActivityBadgeClass(eventType) {
+      return (
+        {
+          created: "pending",
+          approved: "approved",
+          rejected: "rejected",
+          checked_in: "checked_in",
+          expired: "expired",
+        }[eventType] || "pending"
       );
     }
 
@@ -69,7 +86,7 @@
         const article = document.createElement("article");
         article.className = "activity-item";
         article.innerHTML = [
-          `<div class="activity-meta"><span class="status-badge status-${item.status}">${buildActivityBadgeText(item.event_type)}</span><span class="activity-time">${deps.formatDateTime(item.happened_at)}</span></div>`,
+          `<div class="activity-meta"><span class="status-badge status-${buildActivityBadgeClass(item.event_type)}">${buildActivityBadgeText(item.event_type)}</span><span class="activity-time">${deps.formatDateTime(item.happened_at)}</span></div>`,
           `<h3 class="activity-title">${item.title}</h3>`,
           `<p class="activity-desc">${item.description}</p>`,
           `<p class="activity-extra">访客：${item.visitor_name} / ${item.phone} / 入场码：${item.access_code} / 申请编号：${item.appointment_id}</p>`,
@@ -91,7 +108,7 @@
       deps.setText(el.statsResultNode, "正在加载统计数据...");
 
       try {
-        const stats = await global.visitorApi.getAdminStats();
+        const stats = await visitorApi.getAdminStats();
         renderStats(stats);
         deps.setText(el.statsResultNode, "统计数据已更新。");
       } catch (error) {
@@ -114,7 +131,7 @@
       deps.setText(el.overviewResultNode, "正在加载今日看板...");
 
       try {
-        const overview = await global.visitorApi.getAdminOverview();
+        const overview = await visitorApi.getAdminOverview();
         renderOverview(overview);
         deps.setText(el.overviewResultNode, "今日看板已更新。");
       } catch (error) {
@@ -135,7 +152,7 @@
       deps.setText(el.expireStaleResultNode, "正在清理超时未签到预约...");
 
       try {
-        const result = await global.visitorApi.expireStaleAppointments();
+        const result = await visitorApi.expireStaleAppointments();
         deps.setText(
           el.expireStaleResultNode,
           `批量清理完成：本次共处理 ${result.expired_count} 条，阈值 ${result.threshold_hours} 小时。`,

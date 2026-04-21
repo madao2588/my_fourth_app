@@ -1,6 +1,10 @@
 (function registerAdminLogsPage(global) {
-  const pageRegistry = (global.AdminPages = global.AdminPages || {});
-  const behaviorRegistry = (global.AdminBehaviors = global.AdminBehaviors || {});
+  const runtime = global.VisitorRuntime;
+  if (!runtime) {
+    throw new Error("VisitorRuntime is not available.");
+  }
+  const pageRegistry = runtime.getRegistry("adminPages");
+  const behaviorRegistry = runtime.getRegistry("adminBehaviors");
 
   pageRegistry.logs = function initAdminLogsPage(context) {
     return {
@@ -18,17 +22,19 @@
   };
 
   behaviorRegistry.logs = function createAdminLogsBehavior(context) {
-    const { el, deps, state } = context;
+    const { el, deps, state, services } = context;
+    const { visitorApi } = services;
+    const logsState = state.logs;
 
     function buildLogLevelBadge(level) {
-      return ({ INFO: "INFO", WARNING: "WARNING", ERROR: "ERROR" }[level] || level || "LOG");
+      return ({ INFO: "信息", WARNING: "警告", ERROR: "错误" }[level] || level || "日志");
     }
 
     function readLogFilters() {
       if (!el.logsForm) return {};
       const formData = new FormData(el.logsForm);
       const limit = Number(formData.get("log_limit") || 30);
-      state.setCurrentLogLimit(limit);
+      logsState.setCurrentLimit(limit);
       return {
         level: formData.get("log_level"),
         limit,
@@ -45,11 +51,26 @@
 
       logs.forEach((item) => {
         const article = document.createElement("article");
-        article.className = "activity-item";
-        article.innerHTML = `<div class="activity-meta"><span class="status-badge">${buildLogLevelBadge(item.level)}</span><span class="activity-time">${item.timestamp}</span></div><h3 class="activity-title">${item.level}</h3><p class="activity-desc">${item.message}</p>`;
+        article.className = "activity-item log-row";
+
+        const levelCell = document.createElement("div");
+        levelCell.className = "data-cell log-level-cell";
+        const levelLabel = buildLogLevelBadge(item.level);
+        levelCell.innerHTML = [
+          `<span class="status-badge">${levelLabel}</span>`,
+          `<p class="row-secondary">${levelLabel}</p>`,
+        ].join("");
+
+        const timeCell = document.createElement("div");
+        timeCell.className = "data-cell log-time-cell";
+        timeCell.innerHTML = `<p class="row-primary">${item.timestamp}</p>`;
+
+        const messageCell = document.createElement("div");
+        messageCell.className = "data-cell log-message-cell";
+        messageCell.innerHTML = `<p class="activity-desc">${item.message}</p>`;
 
         const actionBar = document.createElement("div");
-        actionBar.className = "actions";
+        actionBar.className = "actions row-actions log-actions";
 
         const copyButton = document.createElement("button");
         copyButton.type = "button";
@@ -64,17 +85,20 @@
           try {
             await navigator.clipboard.writeText(item.raw);
             deps.setText(el.logsResultNode, "日志内容已复制。");
-          } catch (error) {
+          } catch (_) {
             deps.setText(el.logsResultNode, "日志复制失败，请稍后重试。");
           }
         });
 
         actionBar.appendChild(copyButton);
-        article.appendChild(actionBar);
+        article.append(levelCell, timeCell, messageCell, actionBar);
         el.logsListNode.appendChild(article);
       });
 
-      deps.setText(el.logsPageInfoNode, logs.length ? `当前已展示最近 ${logs.length} 条日志。` : "当前没有更多日志可展示。");
+      deps.setText(
+        el.logsPageInfoNode,
+        logs.length ? `当前已展示最近 ${logs.length} 条日志。` : "当前没有更多日志可展示。",
+      );
     }
 
     async function loadLogs(filters = {}) {
@@ -89,7 +113,7 @@
       deps.setText(el.logsResultNode, "正在加载系统日志...");
 
       try {
-        const logs = await global.visitorApi.getAdminLogs(filters);
+        const logs = await visitorApi.getAdminLogs(filters);
         renderLogs(logs);
         if (!logs.length) {
           deps.toggleHidden(el.logsEmptyNode, false);
@@ -111,8 +135,8 @@
     async function handleLoadMoreLogs() {
       if (!el.logsForm) return;
       const limitInput = el.logsForm.elements.namedItem("log_limit");
-      const nextLimit = Math.min(state.getCurrentLogLimit() + 20, 200);
-      state.setCurrentLogLimit(nextLimit);
+      const nextLimit = Math.min(logsState.getCurrentLimit() + 20, 200);
+      logsState.setCurrentLimit(nextLimit);
       if (limitInput) limitInput.value = String(nextLimit);
       await loadLogs(readLogFilters());
     }

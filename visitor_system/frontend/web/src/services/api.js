@@ -1,275 +1,256 @@
-window.adminSession = {
-  getToken() {
-    return localStorage.getItem("visitor_admin_token") || "";
-  },
-
-  setToken(token) {
-    localStorage.setItem("visitor_admin_token", token);
-  },
-
-  clearToken() {
-    localStorage.removeItem("visitor_admin_token");
-  },
-};
-
-function buildHeaders(extraHeaders = {}, useAuth = false) {
-  const headers = { ...extraHeaders };
-
-  if (useAuth) {
-    const token = window.adminSession.getToken();
-    if (token) {
-      headers.Authorization = `Bearer ${token}`;
-    }
+(function registerVisitorApi(global) {
+  const runtime = global.VisitorRuntime;
+  if (!runtime) {
+    throw new Error("VisitorRuntime is not available.");
   }
 
-  return headers;
-}
+  const adminSession = {
+    getToken() {
+      return localStorage.getItem("visitor_admin_token") || "";
+    },
 
-async function parseResponse(response) {
-  if (response.ok) {
-    return response.json();
-  }
+    setToken(token) {
+      localStorage.setItem("visitor_admin_token", token);
+    },
 
-  let detail = `HTTP ${response.status}`;
+    clearToken() {
+      localStorage.removeItem("visitor_admin_token");
+    },
+  };
 
-  try {
-    const payload = await response.json();
-    if (payload.detail) {
-      detail = payload.detail;
-    }
-  } catch (error) {
-    // Ignore invalid JSON error and fall back to status code.
-  }
+  function buildHeaders(extraHeaders = {}, useAuth = false) {
+    const headers = { ...extraHeaders };
 
-  throw new Error(detail);
-}
-
-window.visitorApi = {
-  async healthCheck() {
-    const response = await fetch(`${window.APP_CONFIG.apiBaseUrl}/health`);
-    return parseResponse(response);
-  },
-
-  async applyVisit(payload) {
-    const response = await fetch(`${window.APP_CONFIG.apiBaseUrl}/api/v1/apply`, {
-      method: "POST",
-      headers: buildHeaders({
-        "Content-Type": "application/json",
-      }),
-      body: JSON.stringify(payload),
-    });
-
-    return parseResponse(response);
-  },
-
-  async queryByPhone(phone) {
-    const response = await fetch(`${window.APP_CONFIG.apiBaseUrl}/api/v1/query/${encodeURIComponent(phone)}`);
-    return parseResponse(response);
-  },
-
-  async login(payload) {
-    const response = await fetch(`${window.APP_CONFIG.apiBaseUrl}/api/v1/auth/login`, {
-      method: "POST",
-      headers: buildHeaders({
-        "Content-Type": "application/json",
-      }),
-      body: JSON.stringify(payload),
-    });
-
-    return parseResponse(response);
-  },
-
-  async getCurrentAdmin() {
-    const response = await fetch(`${window.APP_CONFIG.apiBaseUrl}/api/v1/auth/me`, {
-      headers: buildHeaders({}, true),
-    });
-
-    return parseResponse(response);
-  },
-
-  async changePassword(payload) {
-    const response = await fetch(`${window.APP_CONFIG.apiBaseUrl}/api/v1/auth/change-password`, {
-      method: "POST",
-      headers: buildHeaders(
-        {
-          "Content-Type": "application/json",
-        },
-        true,
-      ),
-      body: JSON.stringify(payload),
-    });
-
-    return parseResponse(response);
-  },
-
-  async getAdminUsers() {
-    const response = await fetch(`${window.APP_CONFIG.apiBaseUrl}/api/v1/auth/users`, {
-      headers: buildHeaders({}, true),
-    });
-
-    return parseResponse(response);
-  },
-
-  async createAdminUser(payload) {
-    const response = await fetch(`${window.APP_CONFIG.apiBaseUrl}/api/v1/auth/users`, {
-      method: "POST",
-      headers: buildHeaders(
-        {
-          "Content-Type": "application/json",
-        },
-        true,
-      ),
-      body: JSON.stringify(payload),
-    });
-
-    return parseResponse(response);
-  },
-
-  async updateAdminUserStatus(userId, payload) {
-    const response = await fetch(`${window.APP_CONFIG.apiBaseUrl}/api/v1/auth/users/${userId}/status`, {
-      method: "PATCH",
-      headers: buildHeaders(
-        {
-          "Content-Type": "application/json",
-        },
-        true,
-      ),
-      body: JSON.stringify(payload),
-    });
-
-    return parseResponse(response);
-  },
-
-  async getPendingAppointments() {
-    const response = await fetch(`${window.APP_CONFIG.apiBaseUrl}/api/v1/admin/pending`, {
-      headers: buildHeaders({}, true),
-    });
-
-    return parseResponse(response);
-  },
-
-  async getAdminStats() {
-    const response = await fetch(`${window.APP_CONFIG.apiBaseUrl}/api/v1/admin/stats`, {
-      headers: buildHeaders({}, true),
-    });
-
-    return parseResponse(response);
-  },
-
-  async getAdminOverview() {
-    const response = await fetch(`${window.APP_CONFIG.apiBaseUrl}/api/v1/admin/overview`, {
-      headers: buildHeaders({}, true),
-    });
-
-    return parseResponse(response);
-  },
-
-  async getAdminLogs(filters = {}) {
-    const search = new URLSearchParams();
-
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) {
-        search.set(key, value);
+    if (useAuth) {
+      const token = adminSession.getToken();
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
       }
-    });
+    }
+
+    return headers;
+  }
+
+  function emitAuthExpired(message) {
+    global.dispatchEvent(
+      new CustomEvent("visitor:auth-expired", {
+        detail: { message },
+      }),
+    );
+  }
+
+  async function parseResponse(response, options = {}) {
+    if (response.ok) {
+      return response.json();
+    }
+
+    const { useAuth = false } = options;
+    let detail = `请求失败（HTTP ${response.status}）`;
+
+    try {
+      const payload = await response.json();
+      if (payload.detail) {
+        detail = payload.detail;
+      }
+    } catch (_) {
+      // Ignore invalid JSON error and fall back to status code.
+    }
+
+    const error = new Error(detail);
+    error.status = response.status;
+    error.authExpired = Boolean(useAuth && response.status === 401);
+
+    if (error.authExpired) {
+      adminSession.clearToken();
+      emitAuthExpired(detail);
+    }
+
+    throw error;
+  }
+
+  async function requestJson(path, options = {}) {
+    const {
+      method = "GET",
+      payload,
+      filters,
+      useAuth = false,
+    } = options;
+
+    const search = new URLSearchParams();
+    if (filters) {
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value) {
+          search.set(key, value);
+        }
+      });
+    }
 
     const query = search.toString();
-    const response = await fetch(
-      `${window.APP_CONFIG.apiBaseUrl}/api/v1/admin/logs${query ? `?${query}` : ""}`,
+    const response = await global.fetch(
+      `${global.APP_CONFIG.apiBaseUrl}${path}${query ? `?${query}` : ""}`,
       {
-        headers: buildHeaders({}, true),
+        method,
+        headers: buildHeaders(
+          payload
+            ? {
+                "Content-Type": "application/json",
+              }
+            : {},
+          useAuth,
+        ),
+        body: payload ? JSON.stringify(payload) : undefined,
       },
     );
 
-    return parseResponse(response);
-  },
+    return parseResponse(response, { useAuth });
+  }
 
-  async getAdminHistory(filters = {}) {
-    const search = new URLSearchParams();
+  const visitorApi = {
+    healthCheck() {
+      return requestJson("/health");
+    },
 
-    Object.entries(filters).forEach(([key, value]) => {
-      if (value) {
-        search.set(key, value);
-      }
-    });
+    applyVisit(payload) {
+      return requestJson("/api/v1/apply", {
+        method: "POST",
+        payload,
+      });
+    },
 
-    const query = search.toString();
-    const response = await fetch(
-      `${window.APP_CONFIG.apiBaseUrl}/api/v1/admin/list${query ? `?${query}` : ""}`,
-      {
-        headers: buildHeaders({}, true),
-      },
-    );
+    queryByPhone(phone) {
+      return requestJson(`/api/v1/query/${encodeURIComponent(phone)}`);
+    },
 
-    return parseResponse(response);
-  },
+    login(payload) {
+      return requestJson("/api/v1/auth/login", {
+        method: "POST",
+        payload,
+      });
+    },
 
-  async auditAppointment(recordId, payload) {
-    const response = await fetch(`${window.APP_CONFIG.apiBaseUrl}/api/v1/admin/approve/${recordId}`, {
-      method: "PUT",
-      headers: buildHeaders(
-        {
-          "Content-Type": "application/json",
-        },
-        true,
-      ),
-      body: JSON.stringify(payload),
-    });
+    getCurrentAdmin() {
+      return requestJson("/api/v1/auth/me", {
+        useAuth: true,
+      });
+    },
 
-    return parseResponse(response);
-  },
+    changePassword(payload) {
+      return requestJson("/api/v1/auth/change-password", {
+        method: "POST",
+        payload,
+        useAuth: true,
+      });
+    },
 
-  async checkInAppointment(accessCode) {
-    const response = await fetch(`${window.APP_CONFIG.apiBaseUrl}/api/v1/admin/check-in`, {
-      method: "POST",
-      headers: buildHeaders(
-        {
-          "Content-Type": "application/json",
-        },
-        true,
-      ),
-      body: JSON.stringify({ access_code: accessCode }),
-    });
+    getAdminUsers() {
+      return requestJson("/api/v1/auth/users", {
+        useAuth: true,
+      });
+    },
 
-    return parseResponse(response);
-  },
+    createAdminUser(payload) {
+      return requestJson("/api/v1/auth/users", {
+        method: "POST",
+        payload,
+        useAuth: true,
+      });
+    },
 
-  async inspectAppointment(accessCode) {
-    const response = await fetch(`${window.APP_CONFIG.apiBaseUrl}/api/v1/admin/inspect`, {
-      method: "POST",
-      headers: buildHeaders(
-        {
-          "Content-Type": "application/json",
-        },
-        true,
-      ),
-      body: JSON.stringify({ access_code: accessCode }),
-    });
+    updateAdminUser(userId, payload) {
+      return requestJson(`/api/v1/auth/users/${userId}`, {
+        method: "PATCH",
+        payload,
+        useAuth: true,
+      });
+    },
 
-    return parseResponse(response);
-  },
+    updateAdminUserStatus(userId, payload) {
+      return requestJson(`/api/v1/auth/users/${userId}/status`, {
+        method: "PATCH",
+        payload,
+        useAuth: true,
+      });
+    },
 
-  async expireAppointment(accessCode) {
-    const response = await fetch(`${window.APP_CONFIG.apiBaseUrl}/api/v1/admin/expire`, {
-      method: "POST",
-      headers: buildHeaders(
-        {
-          "Content-Type": "application/json",
-        },
-        true,
-      ),
-      body: JSON.stringify({ access_code: accessCode }),
-    });
+    deleteAdminUser(userId) {
+      return requestJson(`/api/v1/auth/users/${userId}`, {
+        method: "DELETE",
+        useAuth: true,
+      });
+    },
 
-    return parseResponse(response);
-  },
+    getPendingAppointments() {
+      return requestJson("/api/v1/admin/pending", {
+        useAuth: true,
+      });
+    },
 
-  async expireStaleAppointments() {
-    const response = await fetch(`${window.APP_CONFIG.apiBaseUrl}/api/v1/admin/expire-stale`, {
-      method: "POST",
-      headers: buildHeaders({}, true),
-    });
+    getAdminStats() {
+      return requestJson("/api/v1/admin/stats", {
+        useAuth: true,
+      });
+    },
 
-    return parseResponse(response);
-  },
-};
+    getAdminOverview() {
+      return requestJson("/api/v1/admin/overview", {
+        useAuth: true,
+      });
+    },
+
+    getAdminLogs(filters = {}) {
+      return requestJson("/api/v1/admin/logs", {
+        filters,
+        useAuth: true,
+      });
+    },
+
+    getAdminHistory(filters = {}) {
+      return requestJson("/api/v1/admin/list", {
+        filters,
+        useAuth: true,
+      });
+    },
+
+    auditAppointment(recordId, payload) {
+      return requestJson(`/api/v1/admin/approve/${recordId}`, {
+        method: "PUT",
+        payload,
+        useAuth: true,
+      });
+    },
+
+    checkInAppointment(accessCode) {
+      return requestJson("/api/v1/admin/check-in", {
+        method: "POST",
+        payload: { access_code: accessCode },
+        useAuth: true,
+      });
+    },
+
+    inspectAppointment(accessCode) {
+      return requestJson("/api/v1/admin/inspect", {
+        method: "POST",
+        payload: { access_code: accessCode },
+        useAuth: true,
+      });
+    },
+
+    expireAppointment(accessCode) {
+      return requestJson("/api/v1/admin/expire", {
+        method: "POST",
+        payload: { access_code: accessCode },
+        useAuth: true,
+      });
+    },
+
+    expireStaleAppointments() {
+      return requestJson("/api/v1/admin/expire-stale", {
+        method: "POST",
+        useAuth: true,
+      });
+    },
+  };
+
+  runtime.setService("adminSession", adminSession);
+  runtime.setService("visitorApi", visitorApi);
+})(window);

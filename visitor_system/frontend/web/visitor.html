@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -14,10 +14,6 @@
       <p class="lead">
         提交来访预约，获取申请编号和入场码，并通过手机号查询审批状态。
       </p>
-      <div class="actions">
-        <a class="button-link ghost-link" href="./index.html">返回入口页</a>
-        <a class="button-link" href="./admin.html">打开管理后台</a>
-      </div>
     </header>
 
     <main class="grid">
@@ -85,7 +81,7 @@
       <section class="card visitor-pass-card">
         <div class="section-head">
           <h2>访客通行证</h2>
-          <span id="pass-status-badge" class="status-badge hidden">pending</span>
+          <span id="pass-status-badge" class="status-badge hidden">待审批</span>
         </div>
         <p id="pass-result" class="status-text subtle">查询记录后会显示通行证信息。</p>
 
@@ -135,10 +131,16 @@
     </main>
   </div>
 
+  <script src="./src/runtime/registry.js"></script>
   <script src="./src/config/env.js"></script>
   <script src="./src/services/api.js"></script>
   <script src="./src/utils/shared.js"></script>
+  <script src="./src/dom/elements.js"></script>
   <script src="./src/store/admin-state.js"></script>
+  <script src="./src/pages/visitor/home.js"></script>
+  <script src="./src/pages/visitor/pass.js"></script>
+  <script src="./src/pages/visitor/apply.js"></script>
+  <script src="./src/pages/visitor/query.js"></script>
   <script src="./src/main.js"></script>
 </body>
 </html>

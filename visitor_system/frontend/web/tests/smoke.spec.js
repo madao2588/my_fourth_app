@@ -1,9 +1,9 @@
 const { test, expect } = require("@playwright/test");
 
-const API_BASE = "http://127.0.0.1:8000";
-const DEFAULT_ADMIN_USERNAME = "admin";
-const DEFAULT_ADMIN_PASSWORD = "admin123456";
-const STABLE_ADMIN_PASSWORD = "newadmin123456";
+const API_BASE = process.env.E2E_API_BASE || "http://127.0.0.1:8011";
+const DEFAULT_ADMIN_USERNAME = "madao";
+const DEFAULT_ADMIN_PASSWORD = "666666";
+const STABLE_ADMIN_PASSWORD = "666666";
 
 function formatDateTimeLocal(date) {
   const d = new Date(date);
@@ -46,7 +46,7 @@ async function openVisitorPage(page) {
     }
     await page.waitForTimeout(1000);
   }
-  throw new Error("visitor.html loaded but expected input[name=\"name\"] was not found.");
+  throw new Error('visitor.html loaded but expected input[name="name"] was not found.');
 }
 
 async function loginByPassword(apiRequest, password) {
@@ -138,19 +138,34 @@ test.describe("web smoke", () => {
     await expect(page.locator("#query-card")).toBeVisible();
 
     const queryStatus = (await page.locator("#query-status").innerText()).trim();
-    expect(queryStatus.length).toBeGreaterThan(0);
+    expect(queryStatus).toBe("待审批");
+
+    const queryTime = (await page.locator("#query-time").innerText()).trim();
+    expect(queryTime).toContain(appointmentTime.slice(11, 16));
   });
 
   test("admin approve, check-in, history and logs flow", async ({ page, request }) => {
     await waitForBackendReady(request);
     const admin = await ensureAdminCredentials(request);
     const appointment = await createAppointment(request);
+    const lazyAdminDataRequests = [];
 
-    await page.goto("/admin.html");
+    page.on("request", (browserRequest) => {
+      if (/\/api\/v1\/admin\/(pending|stats|overview|list|logs)(\?|$)/.test(browserRequest.url())) {
+        lazyAdminDataRequests.push(browserRequest.url());
+      }
+    });
+
+    await page.goto("/admin.html#accounts", { waitUntil: "domcontentloaded" });
+    await expect(page).toHaveURL(/\/admin-login\.html/);
     await page.fill('input[name="username"]', DEFAULT_ADMIN_USERNAME);
     await page.fill('input[name="password"]', admin.password);
     await page.click('#login-form button[type="submit"]');
+    await expect(page).toHaveURL(/\/admin\.html#accounts/);
+    await expect(page.locator("#account-card")).toBeVisible();
+    expect(lazyAdminDataRequests).toEqual([]);
 
+    await page.click('[data-view-link="pending"]');
     await page.click("#refresh-admin-button");
     const pendingItem = page.locator("#pending-list .pending-item", { hasText: appointment.phone }).first();
     await expect(pendingItem).toBeVisible();
@@ -160,12 +175,15 @@ test.describe("web smoke", () => {
     await expect
       .poll(async () => {
         const queryAfterApprove = await request.get(`${API_BASE}/api/v1/query/${appointment.phone}`);
-        if (queryAfterApprove.status() !== 200) return "";
+        if (queryAfterApprove.status() !== 200) {
+          return "";
+        }
         const approvedBody = await queryAfterApprove.json();
         return approvedBody.record.status;
       })
       .toBe("approved");
 
+    await page.click('[data-view-link="onsite"]');
     await page.fill('input[name="check_in_code"]', appointment.accessCode);
     await page.click('#check-in-form button[type="submit"]');
     await expect(page.locator("#operation-result")).toBeVisible();
@@ -173,15 +191,19 @@ test.describe("web smoke", () => {
     await expect
       .poll(async () => {
         const queryAfterCheckIn = await request.get(`${API_BASE}/api/v1/query/${appointment.phone}`);
-        if (queryAfterCheckIn.status() !== 200) return "";
+        if (queryAfterCheckIn.status() !== 200) {
+          return "";
+        }
         const checkedInBody = await queryAfterCheckIn.json();
         return checkedInBody.record.checked_in_at || "";
       })
       .not.toBe("");
 
+    await page.click('[data-view-link="history"]');
     await page.click("#refresh-history-button");
     await expect(page.locator("#history-list .pending-item").first()).toBeVisible();
 
+    await page.click('[data-view-link="logs"]');
     await page.click("#refresh-logs-button");
     await expect(page.locator("#logs-list .activity-item").first()).toBeVisible();
 

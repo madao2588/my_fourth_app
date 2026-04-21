@@ -1,6 +1,10 @@
 (function registerAdminPendingPage(global) {
-  const pageRegistry = (global.AdminPages = global.AdminPages || {});
-  const behaviorRegistry = (global.AdminBehaviors = global.AdminBehaviors || {});
+  const runtime = global.VisitorRuntime;
+  if (!runtime) {
+    throw new Error("VisitorRuntime is not available.");
+  }
+  const pageRegistry = runtime.getRegistry("adminPages");
+  const behaviorRegistry = runtime.getRegistry("adminBehaviors");
 
   pageRegistry.pending = function initAdminPendingPage(context) {
     return {
@@ -18,18 +22,23 @@
   };
 
   behaviorRegistry.pending = function createAdminPendingBehavior(context) {
-    const { el, deps } = context;
+    const { el, deps, services } = context;
+    const { visitorApi } = services;
 
     function buildPendingItem(record) {
       const wrapper = document.createElement("article");
-      wrapper.className = "pending-item";
+      wrapper.className = "pending-item approval-row";
 
-      const title = document.createElement("h3");
-      title.textContent = `${record.name} / ${record.phone}`;
+      const visitorCell = document.createElement("div");
+      visitorCell.className = "data-cell approval-visitor";
+      visitorCell.innerHTML = [
+        `<p class="row-primary">${record.name}</p>`,
+        `<p class="row-secondary">${record.phone}</p>`,
+      ].join("");
 
-      const meta = document.createElement("div");
-      meta.className = "pending-meta";
-      meta.innerHTML = [
+      const detailCell = document.createElement("div");
+      detailCell.className = "data-cell approval-details";
+      detailCell.innerHTML = [
         `<p><strong>受访人：</strong>${record.target_person}</p>`,
         `<p><strong>预约时间：</strong>${deps.formatDateTime(record.appointment_time)}</p>`,
         `<p><strong>访问事由：</strong>${record.reason}</p>`,
@@ -38,11 +47,15 @@
       ].join("");
 
       const remarkInput = document.createElement("textarea");
-      remarkInput.className = "remark-input";
-      remarkInput.placeholder = "可填写审批备注";
+      remarkInput.className = "remark-input approval-remark";
+      remarkInput.placeholder = "填写审批备注";
+
+      const remarkCell = document.createElement("div");
+      remarkCell.className = "data-cell approval-remark-cell";
+      remarkCell.appendChild(remarkInput);
 
       const actionBar = document.createElement("div");
-      actionBar.className = "actions";
+      actionBar.className = "actions row-actions approval-actions";
 
       const approveButton = document.createElement("button");
       approveButton.type = "button";
@@ -61,7 +74,7 @@
       });
 
       actionBar.append(approveButton, rejectButton);
-      wrapper.append(title, meta, remarkInput, actionBar);
+      wrapper.append(visitorCell, detailCell, remarkCell, actionBar);
       return wrapper;
     }
 
@@ -83,7 +96,7 @@
       deps.clearNode(el.pendingListNode);
 
       try {
-        const records = await global.visitorApi.getPendingAppointments();
+        const records = await visitorApi.getPendingAppointments();
         if (!records.length) {
           deps.toggleHidden(el.adminEmptyNode, false);
           deps.setText(el.adminResultNode, "待审批列表已更新。");
@@ -101,7 +114,7 @@
       deps.setText(el.adminResultNode, action === "approve" ? "正在执行通过操作..." : "正在执行拒绝操作...");
 
       try {
-        await global.visitorApi.auditAppointment(recordId, { action, remark });
+        await visitorApi.auditAppointment(recordId, { action, remark });
         deps.setText(el.adminResultNode, "审批已完成，列表已刷新。");
         await deps.refreshAdminData();
       } catch (error) {

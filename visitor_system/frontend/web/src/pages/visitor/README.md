@@ -1,16 +1,11 @@
-# Web 访客端页面骨架
+# Web Visitor Pages
 
-本目录用于承接 Web 访客侧未来的模块拆分。
+Visitor-side logic is split by user flow:
 
-建议拆分方向：
+- `home.js`: health check and visitor entry interactions
+- `apply.js`: appointment submission flow
+- `query.js`: phone-number status query flow
+- `pass.js`: visitor pass rendering, QR preview, and payload copy
 
-- `home.js`
-  访客入口页
-- `apply.js`
-  预约申请
-- `query.js`
-  手机号查询
-- `pass.js`
-  电子凭证
-
-当前这些文件是占位骨架，后续可逐步把 [main.js](/d:/projects/my_fourth_app/visitor_system/frontend/web/src/main.js) 中对应的访客逻辑迁出。
+`main.js` now acts as the shared bootstrap and dispatcher. Visitor-specific
+behavior should be added here before falling back to the main entry again.

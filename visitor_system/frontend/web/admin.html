@@ -4,6 +4,24 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>访客预约系统 - 管理后台</title>
+  <script>
+    (function guardAdminPage() {
+      const token = localStorage.getItem("visitor_admin_token") || "";
+      const currentUrl = new URL(window.location.href);
+      const nextTarget = `${currentUrl.pathname}${currentUrl.hash || ""}` || "/admin.html";
+
+      if (!token) {
+        const loginUrl = new URL("./admin-login.html", currentUrl.href);
+        loginUrl.searchParams.set("next", nextTarget);
+        window.location.replace(loginUrl.toString());
+        return;
+      }
+
+      if (currentUrl.search) {
+        window.history.replaceState(null, "", `${currentUrl.pathname}${currentUrl.hash || ""}`);
+      }
+    })();
+  </script>
   <link rel="stylesheet" href="./src/styles/main.css">
 </head>
 <body>
@@ -11,71 +29,52 @@
     <header class="hero hero-compact">
       <div class="hero-copy">
         <p class="eyebrow">管理后台</p>
-        <h1>访客审批与现场操作</h1>
+        <h1>预约审批与现场操作</h1>
         <p class="lead">
-          在一个页面内完成预约审批、现场签到、过期处理、历史记录、日志查看与管理员账户管理。
+          在统一后台中完成账户安全、预约审批、现场签到、历史查询、运行日志和日常维护。
         </p>
         <div class="actions">
           <a class="button-link ghost-link" href="./index.html">返回入口页</a>
           <a class="button-link" href="./visitor.html">打开访客页</a>
+          <button id="logout-button" type="button" class="ghost">退出登录</button>
         </div>
       </div>
-      <div class="hero-aside card">
-        <p class="stats-label">快速说明</p>
+      <div class="hero-aside hero-note">
+        <p class="stats-label">访问说明</p>
         <p class="status-text subtle">
-          请先登录，再查看总览、待审批列表、现场操作和系统日志。
-          默认开发账号：<code>admin / admin123456</code>。
+          管理后台现在只接受已登录会话访问。未登录或会话失效时会自动跳回独立登录页。
         </p>
       </div>
     </header>
 
     <div class="admin-layout">
-      <aside class="admin-sidebar card">
+      <aside class="admin-sidebar sidebar-panel">
         <h2>导航</h2>
         <nav class="nav-list">
-          <a href="#auth-section">身份与账户</a>
-          <a href="#dashboard-section">数据总览</a>
-          <a href="#pending-section">待审批</a>
-          <a href="#onsite-section">现场操作</a>
-          <a href="#history-section">历史记录</a>
-          <a href="#logs-section">系统日志</a>
+          <a href="#accounts" data-view-link="accounts">身份与账户</a>
+          <a href="#dashboard" data-view-link="dashboard">数据总览</a>
+          <a href="#pending" data-view-link="pending">待审批</a>
+          <a href="#onsite" data-view-link="onsite">现场操作</a>
+          <a href="#history" data-view-link="history">历史记录</a>
+          <a href="#logs" data-view-link="logs">系统日志</a>
         </nav>
       </aside>
 
       <main class="content-stack">
-        <section id="auth-section" class="admin-section">
+        <section id="auth-section" class="admin-section" data-view="accounts">
           <div class="section-intro">
             <p class="eyebrow">身份</p>
-            <h2>账户与登录</h2>
-            <p class="inline-tip">请先完成登录和密码修改，再使用需要鉴权的后台接口。</p>
+            <h2>账户与权限</h2>
+            <p class="inline-tip">查看当前管理员会话、修改密码，并维护后台账号列表。</p>
           </div>
 
-          <div class="section-grid two-up">
-            <section class="card">
-              <h3>管理员登录</h3>
-              <form id="login-form" class="form">
-                <label>
-                  <span>用户名</span>
-                  <input name="username" type="text" required>
-                </label>
-                <label>
-                  <span>密码</span>
-                  <input name="password" type="password" required>
-                </label>
-                <div class="actions">
-                  <button type="submit">登录</button>
-                  <button id="logout-button" type="button" class="ghost">退出登录</button>
-                </div>
-              </form>
-              <p id="login-result" class="status-text subtle">默认管理员账号：admin / admin123456</p>
-            </section>
-
-            <section id="account-card" class="card hidden">
+          <div class="section-grid accounts-grid">
+            <section id="account-card" class="workspace-panel">
               <div class="section-head">
                 <h3>账户安全</h3>
                 <button id="refresh-account-button" type="button" class="ghost">刷新</button>
               </div>
-              <p id="account-result" class="status-text subtle">登录后将在这里显示账户状态。</p>
+              <p id="account-result" class="status-text subtle">正在加载当前管理员账户信息。</p>
               <div class="pending-meta">
                 <p><strong>用户名：</strong> <span id="account-username">-</span></p>
                 <p><strong>状态：</strong> <span id="account-status">-</span></p>
@@ -85,43 +84,136 @@
               <form id="password-form" class="form">
                 <label>
                   <span>当前密码</span>
-                  <input name="current_password" type="password" minlength="8" required>
+                  <input name="current_password" type="password" minlength="6" required>
                 </label>
                 <label>
                   <span>新密码</span>
-                  <input name="new_password" type="password" minlength="8" required>
+                  <input name="new_password" type="password" minlength="6" required>
                 </label>
                 <div class="actions">
                   <button type="submit">更新密码</button>
                 </div>
               </form>
-              <p id="password-result" class="status-text subtle">这里会显示密码修改结果。</p>
+              <p id="password-result" class="status-text subtle">建议首次登录后立即修改默认密码。</p>
 
               <div class="section-head activity-head">
-                <h3>管理员列表</h3>
+                <h3>管理员管理</h3>
                 <button id="refresh-users-button" type="button" class="ghost">刷新用户</button>
               </div>
-              <p id="users-result" class="status-text subtle">这里会显示管理员列表加载状态。</p>
+              <p id="users-result" class="status-text subtle">这里会显示管理员账号管理状态。</p>
+              <p id="user-management-tip" class="inline-tip">管理员账号的增删改和权限调整仅开放给总指挥官 madao。</p>
+
+              <div id="user-management-panel" class="workspace-panel hidden">
+                <div class="operation-grid manager-tools-grid">
+                  <form id="create-user-form" class="form operation-form">
+                    <h3>新增管理员</h3>
+                    <label>
+                      <span>用户名</span>
+                      <input name="new_username" type="text" minlength="3" placeholder="请输入管理员用户名" required>
+                    </label>
+                    <label>
+                      <span>初始密码</span>
+                      <input name="new_user_password" type="password" minlength="6" placeholder="请输入初始密码" required>
+                    </label>
+                    <label>
+                      <span>角色 / 权限级别</span>
+                      <select name="new_user_role">
+                        <option value="madao4">madao4 / 审计查看</option>
+                        <option value="madao3">madao3 / 现场签到</option>
+                        <option value="madao2">madao2 / 审批主管</option>
+                        <option value="madao1">madao1 / 全局运营</option>
+                        <option value="madao">madao / 总指挥官</option>
+                      </select>
+                    </label>
+                    <label>
+                      <span>账号状态</span>
+                      <select name="new_user_active">
+                        <option value="true">启用</option>
+                        <option value="false">禁用</option>
+                      </select>
+                    </label>
+                    <label>
+                      <span>首次登录策略</span>
+                      <select name="new_user_force_password_change">
+                        <option value="false">无需强制改密</option>
+                        <option value="true">强制改密</option>
+                      </select>
+                    </label>
+                    <div class="actions">
+                      <button type="submit">新增账号</button>
+                    </div>
+                    <p id="create-user-result" class="status-text subtle">可在这里创建新的管理员账号。</p>
+                  </form>
+
+                  <section id="edit-user-panel" class="operation-form hidden">
+                    <div class="section-head">
+                      <h3>编辑管理员</h3>
+                      <button id="cancel-user-edit-button" type="button" class="ghost">取消编辑</button>
+                    </div>
+                    <p id="edit-user-status" class="status-text subtle">选择一条管理员账号后可编辑。</p>
+                    <form id="edit-user-form" class="form">
+                      <input id="edit-user-id" name="edit_user_id" type="hidden">
+                      <label>
+                        <span>用户名</span>
+                        <input name="edit_username" type="text" minlength="3" placeholder="请输入管理员用户名" required>
+                      </label>
+                      <label>
+                        <span>重置密码</span>
+                        <input name="edit_password" type="password" minlength="6" placeholder="留空表示不修改密码">
+                      </label>
+                      <label>
+                        <span>角色 / 权限级别</span>
+                        <select name="edit_role">
+                          <option value="madao4">madao4 / 审计查看</option>
+                          <option value="madao3">madao3 / 现场签到</option>
+                          <option value="madao2">madao2 / 审批主管</option>
+                          <option value="madao1">madao1 / 全局运营</option>
+                          <option value="madao">madao / 总指挥官</option>
+                        </select>
+                      </label>
+                      <label>
+                        <span>账号状态</span>
+                        <select name="edit_user_active">
+                          <option value="true">启用</option>
+                          <option value="false">禁用</option>
+                        </select>
+                      </label>
+                      <label>
+                        <span>下次登录策略</span>
+                        <select name="edit_user_force_password_change">
+                          <option value="false">无需强制改密</option>
+                          <option value="true">强制改密</option>
+                        </select>
+                      </label>
+                      <div class="actions">
+                        <button type="submit">保存修改</button>
+                      </div>
+                    </form>
+                    <p id="edit-user-result" class="status-text subtle">尚未提交账号修改。</p>
+                  </section>
+                </div>
+              </div>
+
               <div id="users-empty" class="empty-state hidden">暂无可显示的管理员用户。</div>
               <div id="users-list" class="pending-list"></div>
             </section>
           </div>
         </section>
 
-        <section id="dashboard-section" class="admin-section">
+        <section id="dashboard-section" class="admin-section" data-view="dashboard">
           <div class="section-intro">
             <p class="eyebrow">总览</p>
-            <h2>仪表盘</h2>
-            <p class="inline-tip">在这里查看关键统计和当日运行情况。</p>
+            <h2>仪表板</h2>
+            <p class="inline-tip">查看关键统计、今日概况和最近活动。</p>
           </div>
 
-          <section class="card">
+          <section class="workspace-panel">
             <div class="section-head">
               <h3>统计数据</h3>
               <button id="refresh-stats-button" type="button" class="ghost">刷新统计</button>
             </div>
             <p id="stats-result" class="status-text subtle">尚未加载统计数据。</p>
-            <div class="stats-grid">
+            <div class="stats-grid metrics-grid">
               <article class="stats-card"><p class="stats-label">总数</p><p id="stats-total" class="stats-value">-</p></article>
               <article class="stats-card"><p class="stats-label">待审批</p><p id="stats-pending" class="stats-value">-</p></article>
               <article class="stats-card"><p class="stats-label">已通过</p><p id="stats-approved" class="stats-value">-</p></article>
@@ -131,13 +223,13 @@
             </div>
           </section>
 
-          <section class="card">
+          <section class="workspace-panel">
             <div class="section-head">
               <h3>今日概览</h3>
               <button id="refresh-overview-button" type="button" class="ghost">刷新概览</button>
             </div>
             <p id="overview-result" class="status-text subtle">尚未加载今日概览。</p>
-            <div class="today-grid">
+            <div class="today-grid metrics-grid metrics-grid-compact">
               <article class="stats-card"><p class="stats-label">新建预约</p><p id="today-created" class="stats-value">-</p></article>
               <article class="stats-card"><p class="stats-label">待审批</p><p id="today-pending" class="stats-value">-</p></article>
               <article class="stats-card"><p class="stats-label">已通过</p><p id="today-approved" class="stats-value">-</p></article>
@@ -148,7 +240,7 @@
 
             <div class="section-head activity-head">
               <h3>最近活动</h3>
-              <p class="inline-tip">这里展示最近发生的关键流程事件。</p>
+              <p class="inline-tip">展示最近发生的关键流程事件。</p>
             </div>
             <div id="activity-empty" class="empty-state hidden">暂无最近活动。</div>
             <div id="activity-list" class="activity-list"></div>
@@ -164,33 +256,39 @@
           </section>
         </section>
 
-        <section id="pending-section" class="admin-section">
+        <section id="pending-section" class="admin-section" data-view="pending">
           <div class="section-intro">
             <p class="eyebrow">审批</p>
             <h2>待审批预约</h2>
             <p class="inline-tip">审核访客预约并执行通过或拒绝。</p>
           </div>
 
-          <section class="card">
+          <section class="workspace-panel">
             <div class="section-head">
               <h3>待审批列表</h3>
               <button id="refresh-admin-button" type="button" class="ghost">刷新待审批</button>
             </div>
             <p id="admin-result" class="status-text subtle">尚未加载待审批列表。</p>
-            <p id="admin-auth-tip" class="status-text subtle">请先登录后再加载待审批记录。</p>
+            <p id="admin-auth-tip" class="status-text subtle">请先登录后再加载后台数据。</p>
+            <div class="data-table-head approval-table-head">
+              <span>访客</span>
+              <span>预约信息</span>
+              <span>审批备注</span>
+              <span>操作</span>
+            </div>
             <div id="admin-empty" class="empty-state hidden">暂无待审批记录。</div>
-            <div id="pending-list" class="pending-list"></div>
+            <div id="pending-list" class="pending-list approval-list"></div>
           </section>
         </section>
 
-        <section id="onsite-section" class="admin-section">
+        <section id="onsite-section" class="admin-section" data-view="onsite">
           <div class="section-intro">
             <p class="eyebrow">现场</p>
             <h2>现场操作</h2>
             <p class="inline-tip">支持扫码核验、查看预约、签到入场和手动过期处理。</p>
           </div>
 
-          <section class="card">
+          <section class="workspace-panel">
             <div class="scanner-panel">
               <div class="section-head">
                 <h3>扫码器</h3>
@@ -252,14 +350,14 @@
           </section>
         </section>
 
-        <section id="history-section" class="admin-section">
+        <section id="history-section" class="admin-section" data-view="history">
           <div class="section-intro">
             <p class="eyebrow">历史</p>
             <h2>预约历史</h2>
             <p class="inline-tip">按状态、手机号和预约时间范围筛选历史记录。</p>
           </div>
 
-          <section class="card">
+          <section class="workspace-panel">
             <div class="section-head">
               <h3>历史记录</h3>
               <button id="refresh-history-button" type="button" class="ghost">刷新历史</button>
@@ -272,6 +370,7 @@
                   <option value="">全部</option>
                   <option value="pending">待审批</option>
                   <option value="approved">已通过</option>
+                  <option value="checked_in">已签到</option>
                   <option value="rejected">已拒绝</option>
                   <option value="expired">已过期</option>
                 </select>
@@ -308,14 +407,14 @@
           </section>
         </section>
 
-        <section id="logs-section" class="admin-section">
+        <section id="logs-section" class="admin-section" data-view="logs">
           <div class="section-intro">
             <p class="eyebrow">日志</p>
             <h2>系统日志</h2>
             <p class="inline-tip">从后端加载并筛选运行日志。</p>
           </div>
 
-          <section class="card">
+          <section class="workspace-panel">
             <div class="section-head">
               <h3>日志列表</h3>
               <button id="refresh-logs-button" type="button" class="ghost">刷新日志</button>
@@ -326,9 +425,9 @@
                 <span>级别</span>
                 <select name="log_level">
                   <option value="">全部</option>
-                  <option value="INFO">INFO</option>
-                  <option value="WARNING">WARNING</option>
-                  <option value="ERROR">ERROR</option>
+                  <option value="INFO">信息</option>
+                  <option value="WARNING">警告</option>
+                  <option value="ERROR">错误</option>
                 </select>
               </label>
               <label>
@@ -353,8 +452,14 @@
             </form>
 
             <p id="logs-result" class="status-text subtle">尚未加载日志。</p>
+            <div class="data-table-head log-table-head">
+              <span>级别</span>
+              <span>时间</span>
+              <span>内容</span>
+              <span>操作</span>
+            </div>
             <div id="logs-empty" class="empty-state hidden">暂无可显示的日志。</div>
-            <div id="logs-list" class="activity-list"></div>
+            <div id="logs-list" class="activity-list log-list"></div>
             <div class="history-toolbar">
               <p id="logs-page-info" class="status-text subtle">暂无更多日志信息。</p>
               <div class="actions">
@@ -390,6 +495,8 @@
     </div>
   </div>
 
+  <script src="./src/runtime/registry.js"></script>
+  <script src="./src/pages/admin/shell.js"></script>
   <script src="./src/pages/admin/dashboard.js"></script>
   <script src="./src/pages/admin/pending.js"></script>
   <script src="./src/pages/admin/onsite.js"></script>
@@ -399,6 +506,7 @@
   <script src="./src/config/env.js"></script>
   <script src="./src/services/api.js"></script>
   <script src="./src/utils/shared.js"></script>
+  <script src="./src/dom/elements.js"></script>
   <script src="./src/store/admin-state.js"></script>
   <script src="./src/main.js"></script>
 </body>
