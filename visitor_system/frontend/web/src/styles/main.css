@@ -132,7 +132,7 @@ body:has(.admin-layout) {
 
 .shell-wide .hero-compact {
   flex: 0 0 auto;
-  grid-template-columns: minmax(0, 1fr) minmax(280px, 320px);
+  grid-template-columns: minmax(0, 1fr) minmax(420px, 500px);
   gap: 16px;
   align-items: start;
   margin-bottom: 0;
@@ -141,6 +141,8 @@ body:has(.admin-layout) {
 .shell-wide .hero-aside {
   max-width: none;
   align-self: start;
+  justify-self: end;
+  width: min(100%, 468px);
 }
 
 .shell-wide .hero h1 {
@@ -248,7 +250,7 @@ body:has(.admin-layout) {
   align-items: center;
   min-height: 138px;
   padding-top: 18px;
-  padding-right: 122px;
+  padding-right: 100px;
 }
 
 .admin-avatar-block {
@@ -319,6 +321,8 @@ body:has(.admin-layout) {
   display: grid;
   gap: 8px;
   align-content: center;
+  width: 100%;
+  max-width: 100%;
   min-width: 0;
 }
 
@@ -326,6 +330,7 @@ body:has(.admin-layout) {
   margin: 0;
   font-size: clamp(1.38rem, 1.9vw, 1.64rem);
   line-height: 1.08;
+  white-space: nowrap;
 }
 
 .admin-session-role {
@@ -333,6 +338,7 @@ body:has(.admin-layout) {
   font-size: 0.96rem;
   font-weight: 700;
   color: var(--muted);
+  white-space: nowrap;
 }
 
 .hero-note-grid {

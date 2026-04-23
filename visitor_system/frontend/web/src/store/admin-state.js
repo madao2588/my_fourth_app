@@ -4,6 +4,7 @@
       needsPasswordChange: false,
       currentRole: "",
       currentUsername: "",
+      currentAvatar: "",
     };
 
     return {
@@ -25,10 +26,17 @@
       setCurrentUsername(value) {
         state.currentUsername = value || "";
       },
+      getCurrentAvatar() {
+        return state.currentAvatar;
+      },
+      setCurrentAvatar(value) {
+        state.currentAvatar = value || "";
+      },
       reset() {
         state.needsPasswordChange = false;
         state.currentRole = "";
         state.currentUsername = "";
+        state.currentAvatar = "";
       },
     };
   }

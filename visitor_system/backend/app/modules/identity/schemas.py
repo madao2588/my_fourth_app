@@ -27,6 +27,7 @@ class CurrentUserRead(BaseModel):
     role: UserRole
     is_active: bool
     force_password_change: bool
+    avatar_image: str | None = None
     created_at: datetime
 
 
@@ -38,6 +39,16 @@ class ChangePasswordRequest(BaseModel):
 class ChangePasswordResponse(BaseModel):
     success: bool = True
     message: str
+
+
+class CurrentUserAvatarUpdateRequest(BaseModel):
+    avatar_image: str | None = Field(default=None, max_length=500_000)
+
+
+class CurrentUserAvatarUpdateResponse(BaseModel):
+    success: bool = True
+    message: str
+    user: CurrentUserRead
 
 
 class AdminUserCreateRequest(BaseModel):

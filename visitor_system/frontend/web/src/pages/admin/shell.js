@@ -6,7 +6,8 @@
   const behaviorRegistry = runtime.getRegistry("adminBehaviors");
 
   behaviorRegistry.shell = function createAdminShellBehavior(context) {
-    const { el, deps, state } = context;
+    const { el, deps, state, services } = context;
+    const { visitorApi } = services;
     const sessionState = state.session;
     const historyState = state.history;
 
@@ -41,12 +42,11 @@
       madao4: "logs",
     };
     const POST_LOGIN_TARGET_STORAGE_KEY = "visitor_admin_next_target";
-    const ADMIN_AVATAR_STORAGE_KEY = "visitor_admin_avatar_image";
 
     const loadedAdminViews = new Set();
     const loadingAdminViews = new Set();
     let activeAdminView = "";
-    let activeAdminAvatar = readStoredAdminAvatarImage();
+    let activeAdminAvatar = sessionState.getCurrentAvatar?.() || "";
     let avatarUploadBound = false;
 
     function getAdminBehavior(name) {
@@ -107,25 +107,9 @@
       return getAllowedAdminViews().includes(view);
     }
 
-    function readStoredAdminAvatarImage() {
-      try {
-        const value = window.localStorage.getItem(ADMIN_AVATAR_STORAGE_KEY) || "";
-        return value.startsWith("data:image/") ? value : "";
-      } catch (_) {
-        return "";
-      }
-    }
-
-    function persistAdminAvatarImage(dataUrl) {
-      try {
-        if (dataUrl) {
-          window.localStorage.setItem(ADMIN_AVATAR_STORAGE_KEY, dataUrl);
-        } else {
-          window.localStorage.removeItem(ADMIN_AVATAR_STORAGE_KEY);
-        }
-      } catch (_) {
-        // Ignore storage errors.
-      }
+    function syncAdminAvatarState(avatarImage) {
+      activeAdminAvatar = avatarImage || "";
+      sessionState.setCurrentAvatar?.(activeAdminAvatar);
     }
 
     function getAdminUserInitial(username) {
@@ -203,8 +187,11 @@
           return;
         }
         try {
-          activeAdminAvatar = await buildAdminAvatarDataUrl(file);
-          persistAdminAvatarImage(activeAdminAvatar);
+          const nextAvatarImage = await buildAdminAvatarDataUrl(file);
+          const result = await visitorApi.updateCurrentAdminAvatar({ avatar_image: nextAvatarImage });
+          syncAdminAvatarState(result?.user?.avatar_image || "");
+          sessionState.setCurrentUsername?.(result?.user?.username || sessionState.getCurrentUsername?.() || "");
+          sessionState.setCurrentRole?.(result?.user?.role || sessionState.getCurrentRole?.() || "");
           renderAdminAvatar(sessionState.getCurrentUsername?.() || "");
         } catch (error) {
           console.error("Failed to update admin avatar.", error);
@@ -220,6 +207,7 @@
         return;
       }
       bindAdminAvatarUpload();
+      syncAdminAvatarState(sessionState.getCurrentAvatar?.() || "");
 
       if (!deps.isAdminLoggedIn()) {
         deps.setText(el.adminSessionUserNode, "未登录");

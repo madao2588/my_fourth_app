@@ -11,6 +11,8 @@ from app.modules.identity.schemas import (
     AdminUserUpdateRequest,
     ChangePasswordRequest,
     ChangePasswordResponse,
+    CurrentUserAvatarUpdateRequest,
+    CurrentUserAvatarUpdateResponse,
     CurrentUserRead,
     DeleteAdminUserResponse,
     LoginRequest,
@@ -23,6 +25,7 @@ from app.modules.identity.service import (
     create_user,
     delete_user,
     list_users,
+    update_current_user_avatar,
     update_user,
     update_user_active_status,
 )
@@ -53,6 +56,7 @@ def get_current_account(current_user: User = Depends(get_current_user)) -> Curre
         role=current_user.role,
         is_active=current_user.is_active,
         force_password_change=current_user.force_password_change,
+        avatar_image=current_user.avatar_image,
         created_at=current_user.created_at,
     )
 
@@ -70,6 +74,31 @@ def change_password(
         new_password=payload.new_password,
     )
     return ChangePasswordResponse(message="密码修改成功。")
+
+
+@router.patch("/me/avatar", response_model=CurrentUserAvatarUpdateResponse)
+def update_current_account_avatar(
+    payload: CurrentUserAvatarUpdateRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+) -> CurrentUserAvatarUpdateResponse:
+    user = update_current_user_avatar(
+        db=db,
+        user=current_user,
+        avatar_image=payload.avatar_image,
+    )
+    return CurrentUserAvatarUpdateResponse(
+        message="头像已更新。",
+        user=CurrentUserRead(
+            id=user.id,
+            username=user.username,
+            role=user.role,
+            is_active=user.is_active,
+            force_password_change=user.force_password_change,
+            avatar_image=user.avatar_image,
+            created_at=user.created_at,
+        ),
+    )
 
 
 @router.get("/users", response_model=list[AdminUserRead])

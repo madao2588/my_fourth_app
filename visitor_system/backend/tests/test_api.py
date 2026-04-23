@@ -127,6 +127,7 @@ def test_madao_accounts_are_seeded_with_descending_roles(client):
     assert me_response.json()["username"] == "madao"
     assert me_response.json()["role"] == "madao"
     assert me_response.json()["force_password_change"] is False
+    assert me_response.json()["avatar_image"] is None
 
     users_response = client.get("/api/v1/auth/users", headers=headers)
     assert users_response.status_code == 200
@@ -150,6 +151,7 @@ def test_admin_can_get_current_account_and_change_password(client):
     assert me_payload["role"] == "madao"
     assert me_payload["is_active"] is True
     assert me_payload["force_password_change"] is False
+    assert me_payload["avatar_image"] is None
 
     change_response = client.post(
         "/api/v1/auth/change-password",
@@ -174,6 +176,36 @@ def test_admin_can_get_current_account_and_change_password(client):
     )
     assert new_login.status_code == 200
     assert new_login.json()["force_password_change"] is False
+
+
+def test_admin_can_persist_avatar_image(client):
+    headers = login_admin(client)
+    avatar_image = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAusB9s6lGtQAAAAASUVORK5CYII="
+
+    update_response = client.patch(
+        "/api/v1/auth/me/avatar",
+        json={"avatar_image": avatar_image},
+        headers=headers,
+    )
+    assert update_response.status_code == 200
+    update_payload = update_response.json()
+    assert update_payload["success"] is True
+    assert update_payload["user"]["avatar_image"] == avatar_image
+
+    me_response = client.get("/api/v1/auth/me", headers=headers)
+    assert me_response.status_code == 200
+    assert me_response.json()["avatar_image"] == avatar_image
+
+
+def test_admin_avatar_image_rejects_invalid_payload(client):
+    headers = login_admin(client)
+
+    response = client.patch(
+        "/api/v1/auth/me/avatar",
+        json={"avatar_image": "not-a-data-url"},
+        headers=headers,
+    )
+    assert response.status_code == 400
 
 
 def test_admin_can_manage_user_active_status(client_and_session):

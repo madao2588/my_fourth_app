@@ -142,6 +142,14 @@
       });
     },
 
+    updateCurrentAdminAvatar(payload) {
+      return requestJson("/api/v1/auth/me/avatar", {
+        method: "PATCH",
+        payload,
+        useAuth: true,
+      });
+    },
+
     getAdminUsers() {
       return requestJson("/api/v1/auth/users", {
         useAuth: true,

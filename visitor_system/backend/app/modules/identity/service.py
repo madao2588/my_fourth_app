@@ -1,4 +1,5 @@
 import base64
+import binascii
 import hashlib
 import hmac
 import os
@@ -21,6 +22,8 @@ from app.modules.identity.user_role import ROLE_SORT_ORDER, UserRole
 
 
 logger = get_logger()
+MAX_AVATAR_IMAGE_BYTES = 256 * 1024
+ALLOWED_AVATAR_MEDIA_TYPES = {"image/jpeg", "image/png", "image/webp", "image/gif"}
 
 
 def hash_password(password: str, salt: bytes | None = None) -> str:
@@ -151,6 +154,50 @@ def _ensure_last_active_account_not_removed(db: Session, target: User, next_is_a
         )
 
 
+def normalize_avatar_image(avatar_image: str | None) -> str | None:
+    normalized_value = (avatar_image or "").strip()
+    if not normalized_value:
+        return None
+
+    header, separator, encoded = normalized_value.partition(",")
+    if separator != "," or not header.startswith("data:") or ";base64" not in header:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="头像图片格式无效。",
+        )
+
+    media_type = header[5:].split(";", 1)[0].strip().lower()
+    if media_type == "image/jpg":
+        media_type = "image/jpeg"
+    if media_type not in ALLOWED_AVATAR_MEDIA_TYPES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="头像图片类型不支持。",
+        )
+
+    try:
+        decoded = base64.b64decode(encoded.encode("ascii"), validate=True)
+    except (ValueError, binascii.Error) as exc:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="头像图片内容无效。",
+        ) from exc
+
+    if not decoded:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="头像图片不能为空。",
+        )
+
+    if len(decoded) > MAX_AVATAR_IMAGE_BYTES:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="头像图片过大，请上传更小的图片。",
+        )
+
+    return f"data:{media_type};base64,{base64.b64encode(decoded).decode('ascii')}"
+
+
 def change_user_password(
     db: Session,
     user: User,
@@ -174,6 +221,24 @@ def change_user_password(
     db.commit()
     db.refresh(user)
     logger.info("admin_password_changed username={} user_id={}", user.username, user.id)
+    return user
+
+
+def update_current_user_avatar(
+    db: Session,
+    *,
+    user: User,
+    avatar_image: str | None,
+) -> User:
+    user.avatar_image = normalize_avatar_image(avatar_image)
+    db.commit()
+    db.refresh(user)
+    logger.info(
+        "admin_avatar_updated username={} user_id={} has_avatar={}",
+        user.username,
+        user.id,
+        bool(user.avatar_image),
+    )
     return user
 
 

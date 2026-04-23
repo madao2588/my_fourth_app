@@ -231,6 +231,7 @@
         sessionState.setNeedsPasswordChange(forcePasswordChange);
         sessionState.setCurrentRole(account.role || "");
         sessionState.setCurrentUsername(account.username || "");
+        sessionState.setCurrentAvatar(account.avatar_image || "");
         deps.syncAdminShell?.({ instant: true });
 
         deps.setText(el.accountUsernameNode, account.username || "-");
