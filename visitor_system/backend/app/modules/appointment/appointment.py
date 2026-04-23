@@ -13,6 +13,7 @@ class Appointment(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, index=True)
     name: Mapped[str] = mapped_column(String(50), nullable=False)
     phone: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
+    region: Mapped[str] = mapped_column(String(50), nullable=False, default="")
     reason: Mapped[str] = mapped_column(String(255), nullable=False)
     target_person: Mapped[str] = mapped_column(String(50), nullable=False)
     appointment_time: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False, index=True)

@@ -39,6 +39,7 @@
       const detailCell = document.createElement("div");
       detailCell.className = "data-cell approval-details";
       detailCell.innerHTML = [
+        `<p><strong>地区：</strong>${record.region || "-"}</p>`,
         `<p><strong>受访人：</strong>${record.target_person}</p>`,
         `<p><strong>预约时间：</strong>${deps.formatDateTime(record.appointment_time)}</p>`,
         `<p><strong>访问事由：</strong>${record.reason}</p>`,

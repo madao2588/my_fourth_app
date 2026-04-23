@@ -12,6 +12,7 @@
       return JSON.stringify(
         {
           access_code: record.access_code,
+          region: record.region || "",
         },
         null,
         2,
@@ -59,6 +60,7 @@
       deps.setText(el.passAccessCodeNode, record.access_code || "-");
       deps.setText(el.passNameNode, record.name || "-");
       deps.setText(el.passPhoneNode, record.phone || "-");
+      deps.setText(el.passRegionNode, record.region || "-");
       deps.setText(el.passTargetNode, record.target_person || "-");
       deps.setText(el.passTimeNode, deps.formatDateTime(record.appointment_time));
       deps.setText(el.passRemarkNode, record.admin_remark || "-");

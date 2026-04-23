@@ -54,6 +54,7 @@ def create_appointment(db: Session, payload: ApplyVisitRequest) -> Appointment:
     appointment = Appointment(
         name=payload.name,
         phone=payload.phone,
+        region=payload.region,
         reason=payload.reason,
         target_person=payload.target_person,
         appointment_time=payload.appointment_time,

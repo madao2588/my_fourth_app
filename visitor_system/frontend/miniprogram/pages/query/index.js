@@ -66,6 +66,7 @@ Page({
           statusTone: getStatusTone(record.status),
           statusNote: getStatusNote(record.status),
           appointmentTimeText: formatDateTime(record.appointment_time),
+          regionText: record.region || "未填写",
           approvedAtText: formatDateTime(record.approved_at),
           checkedInAtText: formatDateTime(record.checked_in_at),
           adminRemarkText: record.admin_remark || "无",

@@ -99,6 +99,7 @@ async function createAppointment(apiRequest, overrides = {}) {
   const payload = {
     name: "Smoke Visitor",
     phone,
+    region: "苏州",
     reason: "Smoke Test Flow",
     target_person: "Admin",
     appointment_time: now.toISOString(),
@@ -124,6 +125,7 @@ test.describe("web smoke", () => {
     await openVisitorPage(page);
     await page.fill('input[name="name"]', "Smoke Visitor");
     await page.fill('input[name="phone"]', phone);
+    await page.fill('input[name="region"]', "苏州");
     await page.fill('textarea[name="reason"]', "Visitor smoke test");
     await page.fill('input[name="target_person"]', "Admin");
     await page.fill('input[name="appointment_time"]', appointmentTime);

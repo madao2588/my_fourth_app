@@ -19,6 +19,7 @@
         const record = (await visitorApi.queryByPhone(phone)).record;
         deps.setText(el.queryNameNode, record.name);
         deps.setText(el.queryStatusNode, deps.formatStatus(record.status));
+        deps.setText(el.queryRegionNode, record.region || "-");
         deps.setText(el.queryTimeNode, deps.formatDateTime(record.appointment_time));
         deps.setText(el.queryTargetNode, record.target_person);
         deps.setText(el.queryRemarkNode, record.admin_remark || "-");

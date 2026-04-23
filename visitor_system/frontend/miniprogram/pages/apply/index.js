@@ -25,6 +25,7 @@ Page({
     form: {
       name: "",
       phone: "",
+      region: "",
       reason: "",
       target_person: "",
       appointment_date: "",
@@ -98,6 +99,7 @@ Page({
       const result = await applyVisit({
         name: form.name,
         phone: form.phone,
+        region: form.region,
         reason: form.reason,
         target_person: form.target_person,
         appointment_time: appointmentTime,

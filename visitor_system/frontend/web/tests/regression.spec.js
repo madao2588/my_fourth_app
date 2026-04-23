@@ -129,6 +129,7 @@ async function createAppointment(apiRequest, overrides = {}) {
   const payload = {
     name: "Regression Visitor",
     phone,
+    region: "苏州",
     reason: "Regression Test Flow",
     target_person: "Admin",
     appointment_time: now.toISOString(),

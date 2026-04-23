@@ -15,6 +15,7 @@
       const payload = {
         name: formData.get("name"),
         phone: formData.get("phone"),
+        region: formData.get("region"),
         reason: formData.get("reason"),
         target_person: formData.get("target_person"),
         appointment_time: deps.normalizeDateTimeInput(formData.get("appointment_time")),
@@ -34,6 +35,7 @@
           access_code: result.access_code,
           name: payload.name,
           phone: payload.phone,
+          region: payload.region,
           target_person: payload.target_person,
           appointment_time: payload.appointment_time,
           admin_remark: "",

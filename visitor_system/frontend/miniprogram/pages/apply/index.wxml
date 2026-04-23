@@ -30,6 +30,13 @@
 
       <view class="field-card">
         <view class="field">
+          <text class="label">地区</text>
+          <input value="{{form.region}}" placeholder="例如：苏州、昆山、深圳" data-field="region" bindinput="handleInput" />
+        </view>
+      </view>
+
+      <view class="field-card">
+        <view class="field">
           <text class="label">来访事由</text>
           <textarea value="{{form.reason}}" placeholder="请输入来访事由，例如项目沟通、材料递交、面试等" data-field="reason" bindinput="handleInput"></textarea>
         </view>

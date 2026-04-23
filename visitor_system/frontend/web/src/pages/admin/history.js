@@ -32,6 +32,7 @@
       wrapper.innerHTML = [
         `<h3>${record.name} / ${record.phone}</h3>`,
         '<div class="pending-meta">',
+        `<p><strong>地区：</strong>${record.region || "-"}</p>`,
         `<p><strong>状态：</strong>${deps.formatStatus(record.status)}</p>`,
         `<p><strong>预约时间：</strong>${deps.formatDateTime(record.appointment_time)}</p>`,
         `<p><strong>受访人：</strong>${record.target_person}</p>`,

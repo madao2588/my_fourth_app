@@ -29,6 +29,10 @@
           <text>{{record.phone}}</text>
         </view>
         <view class="pass-row">
+          <text class="pass-label">地区</text>
+          <text>{{record.regionText}}</text>
+        </view>
+        <view class="pass-row">
           <text class="pass-label">受访人</text>
           <text>{{record.target_person}}</text>
         </view>

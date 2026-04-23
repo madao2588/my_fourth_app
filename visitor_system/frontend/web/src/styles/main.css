@@ -98,6 +98,12 @@ body:has(.admin-layout) {
   padding: 48px 20px 64px;
 }
 
+.visitor-shell {
+  width: min(1660px, calc(100vw - 40px));
+  max-width: none;
+  padding: 52px 24px 72px;
+}
+
 .auth-shell {
   min-height: 100vh;
   display: flex;
@@ -115,8 +121,8 @@ body:has(.admin-layout) {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  gap: 22px;
-  padding: 20px 12px 28px;
+  gap: 14px;
+  padding: 18px 12px 24px;
 }
 
 .hero {
@@ -132,8 +138,8 @@ body:has(.admin-layout) {
 
 .shell-wide .hero-compact {
   flex: 0 0 auto;
-  grid-template-columns: minmax(0, 1fr) minmax(420px, 500px);
-  gap: 16px;
+  grid-template-columns: minmax(0, 1fr) minmax(400px, 470px);
+  gap: 12px;
   align-items: start;
   margin-bottom: 0;
 }
@@ -142,19 +148,19 @@ body:has(.admin-layout) {
   max-width: none;
   align-self: start;
   justify-self: end;
-  width: min(100%, 468px);
+  width: min(100%, 442px);
 }
 
 .shell-wide .hero h1 {
   margin-bottom: 0;
   font-family: var(--font-display);
-  font-size: clamp(2rem, 3vw, 2.8rem);
+  font-size: clamp(1.9rem, 2.6vw, 2.55rem);
   line-height: 1.08;
 }
 
 .shell-wide .hero-copy {
   display: grid;
-  gap: 8px;
+  gap: 6px;
   align-content: start;
 }
 
@@ -165,6 +171,8 @@ body:has(.admin-layout) {
 
 .shell-wide .hero .lead {
   max-width: 54ch;
+  font-size: 0.96rem;
+  line-height: 1.6;
 }
 
 .shell-wide .hero-copy > .actions {
@@ -195,8 +203,8 @@ body:has(.admin-layout) {
 
 .shell-wide .hero-note {
   min-height: 0;
-  padding: 16px 18px 18px;
-  border-radius: 22px;
+  padding: 14px 16px 16px;
+  border-radius: 20px;
   background: linear-gradient(180deg, rgba(255, 252, 248, 0.96), rgba(251, 245, 237, 0.9));
   border-color: var(--admin-border);
   box-shadow: var(--admin-shadow);
@@ -205,7 +213,7 @@ body:has(.admin-layout) {
 .admin-session-card {
   position: relative;
   display: block;
-  min-height: 172px;
+  min-height: 148px;
   overflow: hidden;
   border: 1px solid rgba(205, 192, 174, 0.74);
   box-shadow: 0 18px 36px rgba(31, 41, 51, 0.1);
@@ -230,14 +238,14 @@ body:has(.admin-layout) {
 
 .session-action {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 10px;
+  right: 10px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 86px;
-  min-height: 34px;
-  padding-inline: 12px;
+  min-width: 84px;
+  min-height: 32px;
+  padding-inline: 11px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.72);
   z-index: 2;
@@ -245,12 +253,12 @@ body:has(.admin-layout) {
 
 .admin-session-profile {
   display: grid;
-  grid-template-columns: 96px minmax(0, 1fr);
-  gap: 16px;
+  grid-template-columns: 84px minmax(0, 1fr);
+  gap: 14px;
   align-items: center;
-  min-height: 138px;
-  padding-top: 18px;
-  padding-right: 100px;
+  min-height: 110px;
+  padding-top: 10px;
+  padding-right: 94px;
 }
 
 .admin-avatar-block {
@@ -276,13 +284,13 @@ body:has(.admin-layout) {
 .admin-avatar-preview {
   display: grid;
   place-items: center;
-  width: 96px;
-  height: 96px;
-  border-radius: 28px;
+  width: 84px;
+  height: 84px;
+  border-radius: 24px;
   border: 1px solid rgba(255, 255, 255, 0.42);
   background: linear-gradient(135deg, #0e7490, #155e75);
   color: #fff;
-  font-size: 1.6rem;
+  font-size: 1.42rem;
   font-weight: 800;
   letter-spacing: 0.02em;
   box-shadow: 0 14px 28px rgba(31, 41, 51, 0.16);
@@ -305,13 +313,13 @@ body:has(.admin-layout) {
 .admin-avatar-upload-text {
   display: inline-flex;
   align-items: center;
-  min-height: 28px;
-  padding: 0 10px;
+  min-height: 24px;
+  padding: 0 9px;
   border-radius: 999px;
   border: 1px solid rgba(14, 116, 144, 0.14);
   background: rgba(14, 116, 144, 0.08);
   color: var(--accent-strong);
-  font-size: 0.82rem;
+  font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.04em;
   white-space: nowrap;
@@ -319,7 +327,7 @@ body:has(.admin-layout) {
 
 .admin-session-profile-copy {
   display: grid;
-  gap: 8px;
+  gap: 5px;
   align-content: center;
   width: 100%;
   max-width: 100%;
@@ -328,14 +336,14 @@ body:has(.admin-layout) {
 
 .admin-session-profile-copy .hero-note-value {
   margin: 0;
-  font-size: clamp(1.38rem, 1.9vw, 1.64rem);
+  font-size: clamp(1.24rem, 1.55vw, 1.48rem);
   line-height: 1.08;
   white-space: nowrap;
 }
 
 .admin-session-role {
   margin: 0;
-  font-size: 0.96rem;
+  font-size: 0.9rem;
   font-weight: 700;
   color: var(--muted);
   white-space: nowrap;
@@ -403,6 +411,18 @@ body:has(.admin-layout) {
   line-height: 1.7;
 }
 
+.visitor-hero {
+  margin-bottom: 28px;
+}
+
+.visitor-hero h1 {
+  max-width: 12ch;
+}
+
+.visitor-hero .lead {
+  max-width: 56ch;
+}
+
 .grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -410,14 +430,50 @@ body:has(.admin-layout) {
   align-items: start;
 }
 
+.visitor-grid {
+  grid-template-columns: minmax(540px, 1.52fr) minmax(320px, 0.78fr);
+  gap: 24px;
+}
+
+.visitor-grid > * {
+  min-width: 0;
+}
+
+.visitor-grid .form-card,
+.visitor-grid .visitor-pass-card {
+  grid-column: auto;
+}
+
+.visitor-apply-card {
+  grid-column: 1;
+  grid-row: 1 / span 2;
+}
+
+.visitor-result-card {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+}
+
+.visitor-query-card {
+  grid-column: 2;
+  grid-row: 2;
+  align-self: start;
+}
+
+.visitor-pass-card {
+  grid-column: 1 / -1;
+  grid-row: 3;
+}
+
 .admin-layout {
   display: grid;
   grid-template-columns: 320px minmax(0, 1fr);
-  gap: 28px;
+  gap: 22px;
   align-items: stretch;
   min-height: 0;
   flex: 1 1 auto;
-  margin-top: -56px;
+  margin-top: -68px;
 }
 
 .admin-sidebar {
@@ -435,9 +491,9 @@ body:has(.admin-layout) {
 .sidebar-panel {
   display: grid;
   grid-template-rows: auto 1fr;
-  gap: 18px;
-  min-height: calc(100vh - 172px);
-  padding: 24px 20px 28px;
+  gap: 16px;
+  min-height: calc(100vh - 152px);
+  padding: 20px 18px 22px;
   border-radius: 22px;
   background: linear-gradient(180deg, rgba(255, 252, 248, 0.94), rgba(250, 244, 236, 0.88));
   border: 1px solid var(--admin-border);
@@ -447,13 +503,13 @@ body:has(.admin-layout) {
 .admin-sidebar h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: 1.2rem;
+  font-size: 1.08rem;
 }
 
 .nav-list {
   position: relative;
   display: grid;
-  gap: 10px;
+  gap: 8px;
   align-content: start;
   margin-top: 0;
   padding-left: 20px;
@@ -474,10 +530,10 @@ body:has(.admin-layout) {
   position: relative;
   display: flex;
   align-items: center;
-  min-height: 52px;
-  padding: 14px 16px 14px 18px;
+  min-height: 48px;
+  padding: 12px 14px 12px 18px;
   border-radius: 14px;
-  font-size: 0.98rem;
+  font-size: 0.94rem;
   font-weight: 600;
   color: var(--text);
   text-decoration: none;
@@ -516,7 +572,7 @@ body:has(.admin-layout) {
 
 .content-stack {
   display: grid;
-  gap: 22px;
+  gap: 18px;
   width: 100%;
   max-width: none;
   justify-self: stretch;
@@ -526,27 +582,28 @@ body:has(.admin-layout) {
 
 .admin-section {
   display: grid;
-  gap: 18px;
+  gap: 14px;
   min-height: 100%;
-  padding-bottom: 28px;
+  padding-bottom: 22px;
 }
 
 .section-intro {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .admin-section .section-intro .eyebrow {
   margin: 0;
-  font-size: 1.02rem;
-  letter-spacing: 0.16em;
+  font-size: 0.94rem;
+  letter-spacing: 0.14em;
   color: var(--accent-strong);
 }
 
 .section-intro h2 {
   margin: 0;
   font-family: var(--font-display);
-  font-size: clamp(1.4rem, 2vw, 2rem);
+  font-size: clamp(1.3rem, 1.7vw, 1.78rem);
+  line-height: 1.12;
 }
 
 .section-grid {
@@ -587,8 +644,8 @@ body:has(.admin-layout) {
 
 .workspace-panel {
   display: grid;
-  gap: 18px;
-  padding: 28px 30px 30px;
+  gap: 16px;
+  padding: 24px 24px 24px;
   border: 1px solid var(--admin-border);
   border-radius: 24px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(250, 244, 236, 0.8));
@@ -596,8 +653,8 @@ body:has(.admin-layout) {
 }
 
 #account-card {
-  grid-template-columns: minmax(360px, 0.88fr) minmax(420px, 1.12fr);
-  gap: 22px 28px;
+  grid-template-columns: minmax(320px, 0.84fr) minmax(360px, 1.16fr);
+  gap: 18px 22px;
   align-items: start;
 }
 
@@ -614,13 +671,13 @@ body:has(.admin-layout) {
 
 #account-card > .section-head:first-of-type {
   align-items: flex-start;
-  padding-bottom: 18px;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--admin-line);
 }
 
 #account-card > .section-head.activity-head {
   margin-top: 2px;
-  padding-top: 22px;
+  padding-top: 18px;
   border-top: 1px solid var(--admin-line);
 }
 
@@ -637,9 +694,9 @@ body:has(.admin-layout) {
 #account-card .pending-meta {
   grid-column: 1;
   display: grid;
-  gap: 10px;
+  gap: 8px;
   margin: 0;
-  padding: 22px 24px;
+  padding: 18px 20px;
   border-radius: 22px;
   border: 1px solid var(--admin-border);
   background: linear-gradient(180deg, rgba(255, 251, 246, 0.98), rgba(251, 245, 237, 0.88));
@@ -656,8 +713,8 @@ body:has(.admin-layout) {
 #password-form {
   grid-column: 2;
   align-self: stretch;
-  gap: 16px;
-  padding: 24px 24px 22px;
+  gap: 14px;
+  padding: 20px 20px 18px;
   border: 1px solid var(--admin-border);
   border-radius: 22px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(252, 247, 241, 0.9));
@@ -665,7 +722,7 @@ body:has(.admin-layout) {
 
 #password-form label span {
   color: var(--muted);
-  font-size: 0.92rem;
+  font-size: 0.88rem;
   font-weight: 700;
 }
 
@@ -679,7 +736,7 @@ body:has(.admin-layout) {
 
 #password-result {
   grid-column: 2;
-  margin: -2px 0 0;
+  margin: -4px 0 0;
   padding: 0 4px;
 }
 
@@ -824,8 +881,8 @@ body:has(.admin-layout) {
 .inline-tip {
   margin: 0;
   color: var(--muted);
-  font-size: 0.96rem;
-  line-height: 1.65;
+  font-size: 0.92rem;
+  line-height: 1.58;
 }
 
 .form-card {
@@ -1333,7 +1390,7 @@ button.danger:hover {
 
 .stats-value {
   margin: 0;
-  font-size: 2rem;
+  font-size: 1.82rem;
   font-weight: 800;
   color: var(--accent-strong);
 }
@@ -1503,6 +1560,36 @@ button.danger:hover {
 }
 
 @media (max-width: 1100px) {
+  .visitor-shell {
+    width: calc(100vw - 24px);
+    padding: 42px 12px 56px;
+  }
+
+  .visitor-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+  }
+
+  .visitor-apply-card {
+    grid-column: 1 / -1;
+    grid-row: 1;
+  }
+
+  .visitor-result-card {
+    grid-column: 1;
+    grid-row: 2;
+  }
+
+  .visitor-query-card {
+    grid-column: 2;
+    grid-row: 2;
+  }
+
+  .visitor-pass-card {
+    grid-column: 1 / -1;
+    grid-row: 3;
+  }
+
   .shell-wide .hero-compact,
   .admin-layout {
     grid-template-columns: 1fr;
@@ -1555,6 +1642,32 @@ button.danger:hover {
 }
 
 @media (max-width: 820px) {
+  .visitor-shell {
+    width: calc(100vw - 16px);
+    padding: 36px 8px 44px;
+  }
+
+  .visitor-hero {
+    margin-bottom: 22px;
+  }
+
+  .visitor-hero h1 {
+    max-width: none;
+  }
+
+  .visitor-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .visitor-apply-card,
+  .visitor-result-card,
+  .visitor-query-card,
+  .visitor-pass-card {
+    grid-column: 1;
+    grid-row: auto;
+  }
+
   .hero-compact,
   .admin-layout,
   .section-grid.two-up {
@@ -1731,6 +1844,11 @@ button.danger:hover {
 }
 
 @media (max-width: 560px) {
+  .visitor-shell {
+    width: 100%;
+    padding: 30px 12px 40px;
+  }
+
   .nav-list {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

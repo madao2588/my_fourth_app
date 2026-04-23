@@ -9,6 +9,7 @@ from app.core.time import ensure_utc, to_utc
 class ApplyVisitRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=50)
     phone: str = Field(..., min_length=6, max_length=20)
+    region: str = Field(..., min_length=1, max_length=50)
     reason: str = Field(..., min_length=1, max_length=255)
     target_person: str = Field(..., min_length=1, max_length=50)
     appointment_time: datetime
@@ -57,6 +58,7 @@ class AppointmentRead(BaseModel):
     id: int
     name: str
     phone: str
+    region: str
     reason: str
     target_person: str
     appointment_time: datetime

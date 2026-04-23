@@ -8,6 +8,7 @@ def create_appointment_payload(
     *,
     name: str = "张三",
     phone: str = "13800138000",
+    region: str = "苏州",
     reason: str = "商务拜访",
     target_person: str = "李经理",
     appointment_time: str = "2026-04-08T10:00:00",
@@ -15,6 +16,7 @@ def create_appointment_payload(
     return {
         "name": name,
         "phone": phone,
+        "region": region,
         "reason": reason,
         "target_person": target_person,
         "appointment_time": appointment_time,
@@ -78,6 +80,7 @@ def test_apply_and_query_latest_appointment(client):
     query_payload = query_response.json()
     assert query_payload["found"] is True
     assert query_payload["record"]["phone"] == "13800138000"
+    assert query_payload["record"]["region"] == "苏州"
     assert query_payload["record"]["status"] == "pending"
     assert query_payload["record"]["approved_by"] is None
 
@@ -471,7 +474,7 @@ def test_admin_endpoints_require_auth(client):
 def test_validation_errors_use_unified_response_shape(client):
     response = client.post(
         "/api/v1/apply",
-        json={"name": "", "phone": "", "reason": "", "target_person": "", "appointment_time": ""},
+        json={"name": "", "phone": "", "region": "", "reason": "", "target_person": "", "appointment_time": ""},
     )
     assert response.status_code == 422
     payload = response.json()

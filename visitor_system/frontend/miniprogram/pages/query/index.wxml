@@ -39,6 +39,10 @@
           <text class="result-value">{{result.appointmentTimeText}}</text>
         </view>
         <view class="result-row">
+          <text class="result-label">地区</text>
+          <text class="result-value">{{result.regionText}}</text>
+        </view>
+        <view class="result-row">
           <text class="result-label">受访人</text>
           <text class="result-value">{{result.target_person}}</text>
         </view>
