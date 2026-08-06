@@ -12,9 +12,9 @@
 ## 1. 当前配置入口
 
 - 基础配置：
-  [config/runtime.js](/D:/projects/my_fourth_app/visitor_system/frontend/miniprogram/config/runtime.js)
+  [config/runtime.js](config/runtime.js)
 - 私有覆盖模板：
-  [config/runtime.private.example.js](/D:/projects/my_fourth_app/visitor_system/frontend/miniprogram/config/runtime.private.example.js)
+  [config/runtime.private.example.js](config/runtime.private.example.js)
 
 ## 2. 推荐做法
 
@@ -29,7 +29,7 @@ copy runtime.private.example.js runtime.private.js
 
 这个私有文件已经加入忽略列表：
 
-- [miniprogram/.gitignore](/D:/projects/my_fourth_app/visitor_system/frontend/miniprogram/.gitignore)
+- [.gitignore](.gitignore)
 
 ## 3. 推荐域名规划
 

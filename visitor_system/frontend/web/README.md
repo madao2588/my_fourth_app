@@ -30,16 +30,16 @@ web/
 
 ## 3. 页面入口
 
-- [index.html](/d:/projects/my_fourth_app/visitor_system/frontend/web/index.html)
+- [index.html](index.html)
   总入口页
-- [visitor.html](/d:/projects/my_fourth_app/visitor_system/frontend/web/visitor.html)
+- [visitor.html](visitor.html)
   访客页
-- [admin.html](/d:/projects/my_fourth_app/visitor_system/frontend/web/admin.html)
+- [admin.html](admin.html)
   管理员页
 
 ## 4. 核心文件职责
 
-- [main.js](/d:/projects/my_fourth_app/visitor_system/frontend/web/src/main.js)
+- [main.js](src/main.js)
   页面主逻辑，负责表单提交、状态刷新、数据渲染、登录态同步和扫码交互
 - `src/pages/admin/`
   管理后台模块骨架
@@ -51,11 +51,11 @@ web/
   预留的状态管理目录
 - `src/utils/`
   预留的工具函数目录
-- [api.js](/d:/projects/my_fourth_app/visitor_system/frontend/web/src/services/api.js)
+- [api.js](src/services/api.js)
   所有 API 请求封装
-- [main.css](/d:/projects/my_fourth_app/visitor_system/frontend/web/src/styles/main.css)
+- [main.css](src/styles/main.css)
   当前 Web 原型的主要样式
-- [env.js](/d:/projects/my_fourth_app/visitor_system/frontend/web/src/config/env.js)
+- [env.js](src/config/env.js)
   Web 前端环境配置，例如后端 API 地址和二维码服务地址
 
 ## 5. 当前已实现能力
@@ -123,7 +123,7 @@ web/
 
 详细字段见：
 
-- [api-contract.md](/d:/projects/my_fourth_app/visitor_system/frontend/shared/api/api-contract.md)
+- [api-contract.md](../shared/api/api-contract.md)
 
 ## 7. 当前技术选择
 

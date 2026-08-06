@@ -51,9 +51,9 @@ def create_application(init_db_on_startup: bool = True) -> FastAPI:
             await expiration_task
 
     application = FastAPI(
-        title="Welman Reservation System API",
+        title="VisitorFlow API",
         version="0.1.0",
-        description="威尔曼预约系统的预约、审批、签到与审计后台服务。",
+        description="访客预约系统的预约、审批、签到与审计后台服务。",
         lifespan=lifespan,
     )
     if CORS_ALLOW_ORIGINS:

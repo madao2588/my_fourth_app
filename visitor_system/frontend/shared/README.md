@@ -6,7 +6,7 @@
 
 ## 2. 当前已包含内容
 
-- [api-contract.md](/d:/projects/my_fourth_app/visitor_system/frontend/shared/api/api-contract.md)
+- [api-contract.md](api/api-contract.md)
   前后端接口契约说明
 
 ## 3. 适合继续放在这里的内容

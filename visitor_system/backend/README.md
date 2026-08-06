@@ -131,7 +131,7 @@ backend/
 
 示例文件见：
 
-- [.env.example](/d:/projects/my_fourth_app/visitor_system/backend/.env.example)
+- [.env.example](.env.example)
 
 常用环境变量包括：
 
@@ -231,7 +231,7 @@ uvicorn main:app --host 0.0.0.0 --port 8000
 
 当前已接入 `Loguru`，日志同时输出到控制台和文件：
 
-- [backend.log](/d:/projects/my_fourth_app/visitor_system/backend/logs/backend.log)
+- `logs/backend.log`
 
 管理员后台也可以通过 `/api/v1/admin/logs` 查看最近日志。
 
@@ -287,10 +287,10 @@ python -m pytest
 
 项目提供：
 
-- [Dockerfile](/d:/projects/my_fourth_app/visitor_system/backend/deploy/Dockerfile)
-- [nginx.conf](/d:/projects/my_fourth_app/visitor_system/backend/deploy/nginx.conf)
-- [docker-compose.yml](/d:/projects/my_fourth_app/docker-compose.yml)
-- [docker-compose.postgres.yml](/d:/projects/my_fourth_app/docker-compose.postgres.yml)
+- [Dockerfile](deploy/Dockerfile)
+- [nginx.conf](deploy/nginx.conf)
+- [docker-compose.yml](../../docker-compose.yml)
+- [docker-compose.postgres.yml](../../docker-compose.postgres.yml)
 
 默认 SQLite 演示模式：
 
