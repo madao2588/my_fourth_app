@@ -98,7 +98,7 @@ npm run smoke
 
 小程序运行时配置文件：
 
-- [runtime.js](/D:/projects/my_fourth_app/visitor_system/frontend/miniprogram/config/runtime.js)
+- [runtime.js](frontend/miniprogram/config/runtime.js)
 
 当前约定：
 
@@ -134,7 +134,7 @@ npm run smoke
 
 参考文件：
 
-- [backend/.env.example](/D:/projects/my_fourth_app/visitor_system/backend/.env.example)
+- [backend/.env.example](backend/.env.example)
 
 ### 5.2 数据库
 

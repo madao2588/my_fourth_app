@@ -75,16 +75,16 @@ frontend/
 
 当前 Web 原型主要入口如下：
 
-- [index.html](/d:/projects/my_fourth_app/visitor_system/frontend/web/index.html)
-- [visitor.html](/d:/projects/my_fourth_app/visitor_system/frontend/web/visitor.html)
-- [admin.html](/d:/projects/my_fourth_app/visitor_system/frontend/web/admin.html)
+- [index.html](web/index.html)
+- [visitor.html](web/visitor.html)
+- [admin.html](web/admin.html)
 
 核心脚本和样式：
 
-- [main.js](/d:/projects/my_fourth_app/visitor_system/frontend/web/src/main.js)
-- [api.js](/d:/projects/my_fourth_app/visitor_system/frontend/web/src/services/api.js)
-- [main.css](/d:/projects/my_fourth_app/visitor_system/frontend/web/src/styles/main.css)
-- [env.js](/d:/projects/my_fourth_app/visitor_system/frontend/web/src/config/env.js)
+- [main.js](web/src/main.js)
+- [api.js](web/src/services/api.js)
+- [main.css](web/src/styles/main.css)
+- [env.js](web/src/config/env.js)
 
 当前实现方式是轻量原型风格，优先把业务闭环跑通，因此还没有引入 Vue、React 或构建链路。
 
@@ -112,7 +112,7 @@ frontend/
 
 前端当前主要对接本项目后端 API。接口说明见：
 
-- [api-contract.md](/d:/projects/my_fourth_app/visitor_system/frontend/shared/api/api-contract.md)
+- [api-contract.md](shared/api/api-contract.md)
 
 关键接口包括：
 

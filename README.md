@@ -4,6 +4,8 @@
 
 当前版本已经不是单纯骨架，而是一套可以本地运行、可以演示、可以继续工程化的完整原型。主目标端为微信小程序和 Web，其中小程序偏访客使用，Web 同时承担访客备用入口和管理员后台。
 
+![访客预约页面](docs/screenshots/visitor-portal.png)
+
 ## 当前完成度
 
 一句话总结：项目已经达到“可演示原型”阶段，后端主干基本完成。
@@ -19,7 +21,7 @@
 7. 管理员通过入场码或扫码完成现场签到
 8. 后台查看历史记录、统计看板、最近动态和系统日志
 
-截至 `2026-04-21`，后端测试已通过 `34` 项。
+截至 `2026-08-06`，后端测试已通过 `36` 项。
 
 ## 当前成品形态
 
@@ -65,15 +67,15 @@
 
 对应文件：
 
-- [index.html](/d:/projects/my_fourth_app/visitor_system/frontend/web/index.html)
-- [visitor.html](/d:/projects/my_fourth_app/visitor_system/frontend/web/visitor.html)
-- [admin.html](/d:/projects/my_fourth_app/visitor_system/frontend/web/admin.html)
+- [index.html](visitor_system/frontend/web/index.html)
+- [visitor.html](visitor_system/frontend/web/visitor.html)
+- [admin.html](visitor_system/frontend/web/admin.html)
 
 ### 微信小程序
 
 小程序原型目录：
 
-- [miniprogram](/d:/projects/my_fourth_app/visitor_system/frontend/miniprogram)
+- [miniprogram](visitor_system/frontend/miniprogram)
 
 包含页面：
 
@@ -161,7 +163,7 @@
 
 详细契约见：
 
-- [api-contract.md](/d:/projects/my_fourth_app/visitor_system/frontend/shared/api/api-contract.md)
+- [api-contract.md](visitor_system/frontend/shared/api/api-contract.md)
 
 ## 快速开始
 
@@ -230,9 +232,9 @@ python -m pytest
 
 ## 相关文档
 
-- [PROJECT_STATUS.md](/d:/projects/my_fourth_app/PROJECT_STATUS.md)
-- [DEMO.md](/d:/projects/my_fourth_app/DEMO.md)
-- [DEPLOY_CHECKLIST.md](/d:/projects/my_fourth_app/DEPLOY_CHECKLIST.md)
-- [backend/README.md](/d:/projects/my_fourth_app/visitor_system/backend/README.md)
-- [frontend/README.md](/d:/projects/my_fourth_app/visitor_system/frontend/README.md)
-- [api-contract.md](/d:/projects/my_fourth_app/visitor_system/frontend/shared/api/api-contract.md)
+- [PROJECT_STATUS.md](PROJECT_STATUS.md)
+- [DEMO.md](DEMO.md)
+- [DEPLOY_CHECKLIST.md](DEPLOY_CHECKLIST.md)
+- [backend/README.md](visitor_system/backend/README.md)
+- [frontend/README.md](visitor_system/frontend/README.md)
+- [api-contract.md](visitor_system/frontend/shared/api/api-contract.md)

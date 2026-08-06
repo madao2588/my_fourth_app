@@ -35,7 +35,7 @@ uvicorn main:app --reload
 
 用微信开发者工具打开：
 
-- [miniprogram](/d:/projects/my_fourth_app/visitor_system/frontend/miniprogram)
+- [miniprogram](visitor_system/frontend/miniprogram)
 
 确认小程序请求地址与本地后端联通后即可调试。
 
@@ -98,7 +98,7 @@ python scripts/expire_appointments.py
 - Swagger：`http://127.0.0.1:8000/docs`
 - 健康检查：`http://127.0.0.1:8000/health`
 - Web 入口：`http://127.0.0.1:8000/`
-- 日志文件：[backend.log](/d:/projects/my_fourth_app/visitor_system/backend/logs/backend.log)
+- 日志文件：`visitor_system/backend/logs/backend.log`
 
 ## 7. 常见问题
 

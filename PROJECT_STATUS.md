@@ -70,9 +70,9 @@ Web 端已经足够支撑演示：
 
 ## 当前关键文档
 
-- [README.md](/d:/projects/my_fourth_app/README.md)
-- [DEMO.md](/d:/projects/my_fourth_app/DEMO.md)
-- [DEPLOY_CHECKLIST.md](/d:/projects/my_fourth_app/DEPLOY_CHECKLIST.md)
-- [backend/README.md](/d:/projects/my_fourth_app/visitor_system/backend/README.md)
-- [frontend/README.md](/d:/projects/my_fourth_app/visitor_system/frontend/README.md)
-- [api-contract.md](/d:/projects/my_fourth_app/visitor_system/frontend/shared/api/api-contract.md)
+- [README.md](README.md)
+- [DEMO.md](DEMO.md)
+- [DEPLOY_CHECKLIST.md](DEPLOY_CHECKLIST.md)
+- [backend/README.md](visitor_system/backend/README.md)
+- [frontend/README.md](visitor_system/frontend/README.md)
+- [api-contract.md](visitor_system/frontend/shared/api/api-contract.md)

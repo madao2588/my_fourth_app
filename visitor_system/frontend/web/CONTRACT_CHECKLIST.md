@@ -32,30 +32,30 @@ The following frontend API calls are mapped to backend routes and currently alig
 ### Visitor APIs
 
 - `GET /health` -> backend health endpoint in `app/main.py`
-- `POST /api/v1/apply` -> [visitor.py](../../backend/app/api/routes/visitor.py)
-- `GET /api/v1/query/{phone}` -> [visitor.py](../../backend/app/api/routes/visitor.py)
+- `POST /api/v1/apply` -> [appointment/api.py](../../backend/app/modules/appointment/api.py)
+- `GET /api/v1/query/{phone}` -> [appointment/api.py](../../backend/app/modules/appointment/api.py)
 
 ### Auth/Admin Identity APIs
 
-- `POST /api/v1/auth/login` -> [auth.py](../../backend/app/api/routes/auth.py)
-- `GET /api/v1/auth/me` -> [auth.py](../../backend/app/api/routes/auth.py)
-- `POST /api/v1/auth/change-password` -> [auth.py](../../backend/app/api/routes/auth.py)
-- `GET /api/v1/auth/users` -> [auth.py](../../backend/app/api/routes/auth.py)
-- `POST /api/v1/auth/users` -> [auth.py](../../backend/app/api/routes/auth.py)
-- `PATCH /api/v1/auth/users/{user_id}/status` -> [auth.py](../../backend/app/api/routes/auth.py)
+- `POST /api/v1/auth/login` -> [identity/api.py](../../backend/app/modules/identity/api.py)
+- `GET /api/v1/auth/me` -> [identity/api.py](../../backend/app/modules/identity/api.py)
+- `POST /api/v1/auth/change-password` -> [identity/api.py](../../backend/app/modules/identity/api.py)
+- `GET /api/v1/auth/users` -> [identity/api.py](../../backend/app/modules/identity/api.py)
+- `POST /api/v1/auth/users` -> [identity/api.py](../../backend/app/modules/identity/api.py)
+- `PATCH /api/v1/auth/users/{user_id}/status` -> [identity/api.py](../../backend/app/modules/identity/api.py)
 
 ### Admin Business APIs
 
-- `GET /api/v1/admin/pending` -> [admin.py](../../backend/app/api/routes/admin.py)
-- `GET /api/v1/admin/stats` -> [admin.py](../../backend/app/api/routes/admin.py)
-- `GET /api/v1/admin/overview` -> [admin.py](../../backend/app/api/routes/admin.py)
-- `GET /api/v1/admin/logs` -> [admin.py](../../backend/app/api/routes/admin.py)
-- `GET /api/v1/admin/list` -> [admin.py](../../backend/app/api/routes/admin.py)
-- `PUT /api/v1/admin/approve/{record_id}` -> [admin.py](../../backend/app/api/routes/admin.py)
-- `POST /api/v1/admin/check-in` -> [admin.py](../../backend/app/api/routes/admin.py)
-- `POST /api/v1/admin/inspect` -> [admin.py](../../backend/app/api/routes/admin.py)
-- `POST /api/v1/admin/expire` -> [admin.py](../../backend/app/api/routes/admin.py)
-- `POST /api/v1/admin/expire-stale` -> [admin.py](../../backend/app/api/routes/admin.py)
+- `GET /api/v1/admin/pending` -> [appointment/api.py](../../backend/app/modules/appointment/api.py)
+- `GET /api/v1/admin/stats` -> [audit/api.py](../../backend/app/modules/audit/api.py)
+- `GET /api/v1/admin/overview` -> [audit/api.py](../../backend/app/modules/audit/api.py)
+- `GET /api/v1/admin/logs` -> [audit/api.py](../../backend/app/modules/audit/api.py)
+- `GET /api/v1/admin/list` -> [appointment/api.py](../../backend/app/modules/appointment/api.py)
+- `PUT /api/v1/admin/approve/{record_id}` -> [appointment/api.py](../../backend/app/modules/appointment/api.py)
+- `POST /api/v1/admin/check-in` -> [onsite/api.py](../../backend/app/modules/onsite/api.py)
+- `POST /api/v1/admin/inspect` -> [onsite/api.py](../../backend/app/modules/onsite/api.py)
+- `POST /api/v1/admin/expire` -> [onsite/api.py](../../backend/app/modules/onsite/api.py)
+- `POST /api/v1/admin/expire-stale` -> [scheduler/api.py](../../backend/app/modules/scheduler/api.py)
 
 ## 3. Regression Steps (Quick)
 

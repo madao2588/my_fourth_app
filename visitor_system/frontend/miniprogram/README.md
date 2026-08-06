@@ -42,15 +42,15 @@ miniprogram/
 
 ## 4. 核心文件职责
 
-- [services/api.js](/d:/projects/my_fourth_app/visitor_system/frontend/miniprogram/services/api.js)
+- [services/api.js](services/api.js)
   小程序请求层封装，统一调用后端接口。
-- [utils/format.js](/d:/projects/my_fourth_app/visitor_system/frontend/miniprogram/utils/format.js)
+- [utils/format.js](utils/format.js)
   状态文案、状态色和时间格式化工具。
-- [utils/storage.js](/d:/projects/my_fourth_app/visitor_system/frontend/miniprogram/utils/storage.js)
+- [utils/storage.js](utils/storage.js)
   缓存最近一次使用的手机号，提升首页、预约页、查询页和凭证页之间的连续性。
 - `components/`
   预留给后续抽离的通用卡片、状态标签、按钮区等复用组件。
-- [app.json](/d:/projects/my_fourth_app/visitor_system/frontend/miniprogram/app.json)
+- [app.json](app.json)
   小程序页面注册与全局配置。
 
 ## 5. 当前已实现能力
@@ -113,7 +113,7 @@ miniprogram/
 
 使用微信开发者工具打开：
 
-- [miniprogram](/d:/projects/my_fourth_app/visitor_system/frontend/miniprogram)
+- `visitor_system/frontend/miniprogram`
 
 然后确认后端服务已经启动，并且小程序开发环境能够访问对应 API 地址。
 

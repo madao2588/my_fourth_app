@@ -15,7 +15,7 @@
 
 ## 3. 常用命令
 
-在 [backend](/d:/projects/my_fourth_app/visitor_system/backend) 目录下执行：
+在 [backend](..) 目录下执行：
 
 ```bash
 alembic upgrade head
